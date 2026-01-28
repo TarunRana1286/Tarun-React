@@ -1,10 +1,11 @@
-import './App.css'
+//import './App.css'
+import Tarun from "./tarun"
 
 function App() {
 
   return (
-    <h1>Taruun Reactt | From HC</h1>
+    <Tarun />
   )
 }
 
-export default App
+export default Tarun
