@@ -9,8 +9,22 @@ function MyApp() {
   return <div> <h1>Hello Vite + React!</h1></div>;
 }
 
+const anotherElement =(
+  <a href="https://google.com" target='_blanlk'>Visit Googluuu</a>
+)
+
+const reactElement = React.createElement('a',
+  {
+    href:"https://www.google.com",target:"_blank"
+  },
+  "Click me to visit Google Link"
+)
+
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <MyApp />
-  </StrictMode>,
+  reactElement
+  
+  //anotherElement
+  // <StrictMode>
+  //   <MyApp />
+  // </StrictMode>,
 )
