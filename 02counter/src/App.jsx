@@ -3,17 +3,19 @@ import './App.css'
 
 function App() {
  
-  let [counter, setCounter] = useState(7);
+  let [counter, setCounter] = useState(1);
   ///let counter =7;
 
   const handleAdd = () => {
-    setCounter(counter + 1);
-    console.log("Add button clicked", counter);
+    setCounter(prev => Math.min(20, prev + 1));
+    //setCounter(counter + 1);
+    ///console.log("Add button clicked", counter);
   }
 
   const handleRemove = () => {
-    setCounter(counter - 1);
-    console.log("Remove button clicked", counter);
+    setCounter(prev => Math.max(0, prev - 1));
+    //setCounter(counter - 1);
+    ///console.log("Remove button clicked", counter);
   } 
 
   return (
