@@ -1,6 +1,7 @@
 function Tarun(){
+    const username="Tarun";
     return(
-        <h2>Hello Tarun</h2>
+        <h2>Hello {username}</h2>
     )
 }
 
