@@ -13,18 +13,21 @@ const anotherElement =(
   <a href="https://google.com" target='_blanlk'>Visit Googluuu</a>
 )
 
+const anotheruser = "Tarun Rana React"
+
 const reactElement = React.createElement('a',
   {
     href:"https://www.google.com",target:"_blank"
   },
-  "Click me to visit Google Link"
+  "Click me to visit Google Link",
+  anotheruser
 )
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   reactElement
   
   //anotherElement
-  // <StrictMode>
-  //   <MyApp />
-  // </StrictMode>,
+  //  <StrictMode>
+  //    <MyApp />
+  //  </StrictMode>,
 )
