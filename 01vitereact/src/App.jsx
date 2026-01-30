@@ -2,9 +2,9 @@
 import Tarun from "./tarun"
 
 function App() {
-
+const username="Tarun"
   return (
-    <Tarun />
+    <Tarun username={username} />
   )
 }
 
