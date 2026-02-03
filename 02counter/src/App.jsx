@@ -7,7 +7,17 @@ function App() {
   ///let counter =7;
 
   const handleAdd = () => {
-    setCounter(prev => Math.min(20, prev + 1));
+    setCounter(prev =>  prev + 1);
+    setCounter(prev =>  prev + 1);
+    setCounter(prev =>  prev + 1);
+    setCounter(prev =>  prev + 1);
+
+
+    // setCounter(prev => Math.min(20, prev + 1));
+    // setCounter(prev => Math.min(20, prev + 1));
+    // setCounter(prev => Math.min(20, prev + 1));
+    // setCounter(prev => Math.min(20, prev + 1));
+
     //setCounter(counter + 1);
     ///console.log("Add button clicked", counter);
   }
