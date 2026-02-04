@@ -7,7 +7,16 @@ const [color, setColor] = useState("olive");
 
 console.log("Current color state:", color);
   return (
-    
+    <div
+      className="w-full h-screen duration-200"
+      style={{
+        backgroundColor: color,
+        minHeight: '100vh', // force full height
+      }}
+    >
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-6 py-3 rounded-full z-50">
+        Current: {color}
+      </div>
     <div className="w-full h-screen flex justify-center items-center"
   style={{ backgroundColor: color }}>
     <div className="fixed flex flex-wrap justify-center bottom-12 inset-x-0 px-4">
@@ -20,7 +29,8 @@ console.log("Current color state:", color);
           <button onClick={() => setColor("purple")} className="outline-none px-4 py-1 rounded-full text-white shadow-lg" style={{backgroundColor:"purple"}}>Purple</button>
           </div>  
      </div>  
-    </div>  
+    </div> 
+    </div> 
   )
 }
 
