@@ -10,12 +10,9 @@ const changeColor = (newColor, message) => {
   };
 console.log("Current color state:", color);
   return (
-    <div
-      className="w-full h-screen duration-200"
-      style={{
-        backgroundColor: color,
-        minHeight: '100vh'
-      }}
+     <div
+      className="w-full min-h-screen flex justify-center items-center duration-200"
+      style={{ backgroundColor: color }}
     >
     <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-6 py-3 rounded-full z-50">
         Current: {color}
