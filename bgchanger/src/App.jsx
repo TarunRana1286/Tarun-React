@@ -1,13 +1,13 @@
 import './App.css'
 import { useState } from "react"
 import React from "react"
+
 function App() {
+ 
+  const [color, setColor] = useState("white");
 
-const [color, setColor] = useState("olive");
-
-console.log("Current color state:", color);
   return (
-      <>
+    <>
       <div className="h-screen flex flex-col justify-center items-center" style={{ backgroundColor: color }}>
         <h1 className="text-3xl mb-4">Background Color Changer</h1>
         <div className="space-x-4">
