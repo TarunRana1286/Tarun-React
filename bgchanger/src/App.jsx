@@ -8,8 +8,8 @@ function App() {
 
   return (
     <>
-      <div className="h-screen flex flex-col justify-center items-center" style={{ backgroundColor: color }}>
-        <h1 className="text-3xl mb-4">Background Color Changer</h1>
+      <div className="w-full h-screen flex flex-col justify-center items-center" style={{ backgroundColor: color }}>
+        <h1 className="text-3xl mb-4 text-black">Background Color Changer</h1>
         <div className="space-x-4">
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded"
