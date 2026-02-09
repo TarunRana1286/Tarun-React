@@ -29,6 +29,18 @@ function App() {
           >
             Light Yellow
           </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded"
+            onClick={() => setColor("lightcoral")}
+          >
+            Light Red
+          </button>
+          <button
+            className="px-4 py-2 bg-green-500 text-white rounded"
+            onClick={() => setColor("lightgreen")}
+          >
+            Light green
+          </button>
         </div>
       </div>    
     </>
