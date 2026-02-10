@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 ///import './App.css'
 import React from "react"
 
@@ -25,6 +25,10 @@ function App() {
     }
     setPassword(password);
   }, [length, numberAllowed, charAllowed,setPassword])
+
+  useMemo(() => {
+    passwordGenerator();
+  }, [passwordGenerator, length, numberAllowed, charAllowed])
   return (
     <>
     <div className="align-middle">
@@ -48,8 +52,24 @@ function App() {
           <label htmlFor="characters">Include Special Characters</label>
          */}
         <input type="text" value={password} className='outline-none w-full py-1 px-3 text-align-center' placeholder="Password" readOnly />
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => navigator.clipboard.writeText(password)}>Copy</button>
+        <button className="bg-blue-700 text-white font-bold px-3 py-0.5 shrink-0 rounded" onClick={() => navigator.clipboard.writeText(password)}>Copy</button>
         <button onClick={passwordGenerator}>Generate Password</button>
+        </div>
+        <div className="flex text-sm gap-x-2">
+          <div className="flex items-center gap-2">
+            <input type="range" min={6} max={100} value={length} className='cursor-point' onChange={(e) => setLength(e.target.value)} />
+            <label htmlFor="length">Length: {length}</label>
+            {/* <input type="checkbox" id="numbers" checked={numberAllowed} onChange={(e) => setNumberAllowed(e.target.checked)} />
+            <label htmlFor="numbers">Include Numbers</label> */}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <input type="checkbox" id="numbers" checked={numberAllowed} onChange={() => setNumberAllowed((prev) => !prev)} />
+          <label htmlFor="numbers">Include Numbers</label>
+        </div>
+        <div className="flex items-center gap-2">
+          <input type="checkbox" id="characters" checked={charAllowed} onChange={() => setCharAllowed((prev) => !prev)} />
+          <label htmlFor="characters">Include Special Characters</label>
         </div>
       </div>
       </div>
