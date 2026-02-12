@@ -14,4 +14,6 @@ function useCurrencyInfo(currency) {
     }, [currency]);
 
     const [currencyInfo, setCurrencyInfo] = useState(null); 
+
+    return currencyInfo;
  }
