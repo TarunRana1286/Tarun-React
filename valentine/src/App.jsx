@@ -16,7 +16,7 @@ function App() {
 
   const cuteNoMessages = [
     "Aww nooo, don't break my heart 🥺💔",
-    "Pwease... one more try? 🥹❤️",
+    "Please... one more try? 🥹❤️",
     "That's not fair! My heart wants you 😤💕",
     "No? But I already planned our forever 🫶",
     "Clicking no should be illegal 😭🚫",
