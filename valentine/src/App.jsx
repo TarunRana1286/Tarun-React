@@ -43,18 +43,14 @@ function App() {
   };
 
   const handleNo = () => {
-    // Show current message
     const msg = cuteNoMessages[noIndex];
     setNoMessage(msg);
     setShowNoToast(true);
     setTimeout(() => setShowNoToast(false), 3000);
 
-    // Move to next message (cycle after all shown)
     setNoIndex((prev) => (prev + 1) % cuteNoMessages.length);
   };
 
-  // Yes button grows slowly with every No click
-  // After all 10 messages → grows faster + text changes
   const yesScale = 1 + noIndex * 0.15; // slow growth
   const yesMessage = noIndex >= 10 
     ? "No more No's… you have to say Yes now! 💥❤️" 
@@ -138,7 +134,6 @@ function App() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-          {/* Yes button - grows slowly with each No */}
           <button
             onClick={handleYes}
             className="yes-btn bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold text-2xl px-16 py-6 rounded-full shadow-2xl transition-all duration-700 hover:scale-110 hover:shadow-[0_0_60px_#ff69b4] active:scale-105 relative overflow-hidden group"
@@ -154,7 +149,6 @@ function App() {
             <span className="absolute inset-0 rounded-full border-4 border-pink-300/50 opacity-0 group-hover:opacity-70 animate-pulse-slow"></span>
           </button>
 
-          {/* No button */}
           <button
             onClick={handleNo}
             className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-2xl px-16 py-6 rounded-full shadow-2xl hover:scale-110 hover:shadow-rose-500/50 transition-all duration-300"

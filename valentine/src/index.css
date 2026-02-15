@@ -1,6 +1,5 @@
 /* src/index.css */
 
-/* Reset & base styles */
 * {
   margin: 0;
   padding: 0;
@@ -11,10 +10,9 @@ body {
   font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
-  background-color: #111827; /* dark fallback if image fails */
+  background-color: #111827;
 }
 
-/* Floating hearts animation (only once) */
 @keyframes floatHearts {
   0% {
     transform: translateY(100vh) scale(0.5) rotate(0deg);
@@ -32,7 +30,6 @@ body {
   }
 }
 
-/* Heart element base styles */
 .heart {
   position: absolute;
   left: var(--left, 50%);
@@ -45,12 +42,10 @@ body {
   z-index: 5;
 }
 
-/* Optional: color variations for hearts */
 .heart:nth-child(odd)   { color: #ff69b4; }   /* hot pink */
 .heart:nth-child(even)  { color: #ff1493; }   /* deep pink */
 .heart:nth-child(3n)    { color: #ffffff; }   /* white */
 
-/* Yes button pulse ring on hover */
 .yes-btn {
   position: relative;
   overflow: hidden;
@@ -72,7 +67,6 @@ body {
   100% { transform: scale(0.8); opacity: 0.7; }
 }
 
-/* Toast bounce animation (if you're still using it) */
 @keyframes bounceIn {
   0%   { opacity: 0; transform: scale(0.6) translateY(20px); }
   60%  { opacity: 1; transform: scale(1.1) translateY(-10px); }
