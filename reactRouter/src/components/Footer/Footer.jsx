@@ -20,12 +20,12 @@ export default function Footer() {
                             <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">Resources</h2>
                             <ul className="text-gray-500 font-medium">
                                 <li className="mb-4">
-                                    <Link to="/" className="hover:underline">
+                                    <Link to="/" className="hover:underline antigravity-hover">
                                         Home
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/about" className="hover:underline">
+                                    <Link to="/about" className="hover:underline antigravity-hover">
                                         About
                                     </Link>
                                 </li>
@@ -37,7 +37,7 @@ export default function Footer() {
                                 <li className="mb-4">
                                     <a
                                         href="https://github.com/TarunRana1286"
-                                        className="hover:underline"
+                                        className="hover:underline antigravity-hover"
                                         target="_blank"
                                         rel="noreferrer"
                                     >
@@ -45,7 +45,7 @@ export default function Footer() {
                                     </a>
                                 </li>
                                 <li>
-                                    <Link to="/" className="hover:underline">
+                                    <Link to="/" className="hover:underline antigravity-hover">
                                         Discord
                                     </Link>
                                 </li>
@@ -55,12 +55,12 @@ export default function Footer() {
                             <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">Legal</h2>
                             <ul className="text-gray-500 font-medium">
                                 <li className="mb-4">
-                                    <Link to="#" className="hover:underline">
+                                    <Link to="#" className="hover:underline antigravity-hover">
                                         Privacy Policy
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="#" className="hover:underline">
+                                    <Link to="#" className="hover:underline antigravity-hover">
                                         Terms &amp; Conditions
                                     </Link>
                                 </li>
@@ -72,13 +72,13 @@ export default function Footer() {
                 <div className="sm:flex sm:items-center sm:justify-between">
                     <span className="text-sm text-gray-500 sm:text-center">
                         © 2026 
-                        <a href="https://github.com/TarunRana1286" className="hover:underline">
+                        <a href="https://github.com/TarunRana1286" className="hover:underline antigravity-hover">
                             Tarun Rana
                         </a>
                         . All Rights Reserved.
                     </span>
                     <div className="flex mt-4 space-x-5 sm:justify-center sm:mt-0">
-                        <Link to="#" className="text-gray-500 hover:text-gray-900">
+                        <Link to="#" className="text-gray-500 hover:text-gray-900 antigravity-hover">
                             <svg
                                 className="w-4 h-4"
                                 aria-hidden="true"
@@ -94,7 +94,7 @@ export default function Footer() {
                             </svg>
                             <span className="sr-only">Facebook page</span>
                         </Link>
-                        <Link to="#" className="text-gray-500">
+                        <Link to="#" className="text-gray-500 antigravity-hover">
                             <svg
                                 className="w-4 h-4"
                                 aria-hidden="true"
@@ -106,7 +106,7 @@ export default function Footer() {
                             </svg>
                             <span className="sr-only">Discord community</span>
                         </Link>
-                        <Link to="#" className="text-gray-500">
+                        <Link to="#" className="text-gray-500 antigravity-hover">
                             <svg
                                 className="w-4 h-4"
                                 aria-hidden="true"
@@ -122,7 +122,7 @@ export default function Footer() {
                             </svg>
                             <span className="sr-only">Twitter page</span>
                         </Link>
-                        <Link to="#" className="text-gray-500">
+                        <Link to="#" className="text-gray-500 antigravity-hover">
                             <svg
                                 className="w-4 h-4"
                                 aria-hidden="true"
@@ -138,7 +138,7 @@ export default function Footer() {
                             </svg>
                             <span className="sr-only">GitHub account</span>
                         </Link>
-                        <Link to="#" className="text-gray-500">
+                        <Link to="#" className="text-gray-500 antigravity-hover">
                             <svg
                                 className="w-4 h-4"
                                 aria-hidden="true"

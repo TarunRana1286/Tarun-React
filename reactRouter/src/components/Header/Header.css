@@ -1,0 +1,77 @@
+/* Antigravity Hover Effect - Physics-based gravity with bounce */
+@keyframes antigravity-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    animation-timing-function: ease-in;
+  }
+  25% {
+    transform: translateY(15px) rotate(2deg);
+    animation-timing-function: ease-out;
+  }
+  50% {
+    transform: translateY(0px) rotate(0deg);
+    animation-timing-function: ease-in;
+  }
+  75% {
+    transform: translateY(8px) rotate(-1deg);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes antigravity-bounce {
+  0% {
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: ease-in;
+  }
+  25% {
+    transform: translateY(20px) scale(0.9, 1.1);
+    animation-timing-function: ease-out;
+  }
+  50% {
+    transform: translateY(0px) scale(1.05, 0.95);
+    animation-timing-function: ease-in;
+  }
+  75% {
+    transform: translateY(10px) scale(0.95, 1.05);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+/* Physics-based gravity with bounce effect */
+.antigravity-hover {
+  position: relative;
+  display: inline-block;
+  transition: transform 0.1s;
+}
+
+.antigravity-hover:hover {
+  animation: antigravity-bounce 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  cursor: pointer;
+}
+
+/* Enhanced version with shadow that grows as it "falls" */
+.antigravity-hover::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 5px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.2) 0%, transparent 70%);
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.antigravity-hover:hover::after {
+  opacity: 1;
+  bottom: -15px;
+  width: 120%;
+  height: 15px;
+}
