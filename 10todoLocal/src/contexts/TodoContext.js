@@ -16,8 +16,11 @@ export const TodoContext = createContext({
             title:"Todo 3",
             completed:false,
         },
-        theme:"dark",
-    ]
+    ],
+    addTodo:(todo)=>{},
+        updateTodo:(id,title,completed)=>{},
+        deleteTodo:(id)=>{},
+        todoCompleted:(id)=>{},
 });
 
 export const useTodoContext = () => {
