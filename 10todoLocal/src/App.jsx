@@ -10,7 +10,7 @@ const addTodos = (todo) => {
 }
 
 const updateTodo = (id,title,completed) => {
-  setTodo(todo.map((t)=>t.id === id ? {...t,title,completed}:t))
+  setTodo(prev => prev.map((t) => t.id === id ? {...t,title,completed} : t))
 }
 
   return (
