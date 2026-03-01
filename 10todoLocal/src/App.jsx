@@ -13,6 +13,14 @@ const updateTodo = (id,title,completed) => {
   setTodo(prev => prev.map((t) => t.id === id ? {...t,title,completed} : t))
 }
 
+const deleteTodo = (id) => {
+  setTodo(prev => prev.filter((t) => t.id !== id))
+}
+
+const todoCompleted = (id) => {
+  setTodo(prev => prev.map((t) => t.id === id ? {...t,completed:!t.completed} : t))
+}   
+
   return (
     <TodoProvider value={{
         todos:todo,
