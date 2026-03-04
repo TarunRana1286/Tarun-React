@@ -7,3 +7,9 @@ const initialState = {
     { id: nanoid(), title: "Build a to-do app", completed: false },
   ],
 };
+
+export const todoSlice = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {}
+});
