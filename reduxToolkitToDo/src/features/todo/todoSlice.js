@@ -22,5 +22,21 @@ export const todoSlice = createSlice({
     removeTodo: (state, action) => {
       state.todos = state.todos.filter((todo) => todo.id !== action.payload);
     },
+    updateTodo: (state, action) => {
+      const { id, title } = action.payload;
+      const existingTodo = state.todos.find((todo) => todo.id === id);
+      if (existingTodo) {
+        existingTodo.title = title;
+      }
+    },
+    deleteTodo: (state, action) => {
+      state.todos = state.todos.filter((todo) => todo.id !== action.payload);
+    },
+   toggleTodo: (state, action) => {
+      const existingTodo = state.todos.find((todo) => todo.id === action.payload);
+      if (existingTodo) {
+        existingTodo.completed = !existingTodo.completed;
+      }
+    },
   }
 });
