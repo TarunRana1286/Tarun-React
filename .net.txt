@@ -1,2 +1,3 @@
 .net QnA PDF Starts - 1766812780127
 Zero to Mastery
+ - Delegate Regarding QnA
