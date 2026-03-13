@@ -4,4 +4,4 @@ Zero to Mastery
  - Async Await
 
 Intermediate QnA Starts
-DI 
+DI and Generics
