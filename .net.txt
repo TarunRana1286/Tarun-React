@@ -6,3 +6,4 @@ Zero to Mastery
 Intermediate QnA Starts
 DI and Generics - Repeats the same
 Moving on LINQ
+IEnumerable, IQuerable and LIST
