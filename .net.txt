@@ -13,3 +13,5 @@ Revision
 Generics and DI
 Middleware
 Finalize, Dispose, AsyncStream
+Design Patter
+Task and Thread
