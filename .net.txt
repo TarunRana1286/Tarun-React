@@ -13,6 +13,9 @@ Revision
 Generics and DI
 Middleware
 Finalize, Dispose, AsyncStream
-Design Patter
+Design Patters
 Task and Thread
 reflection, Boxing and Unboxing
+Performance Optimization in .Net
+Span<T> and Memory<T>
+Authentication and Authorization next
