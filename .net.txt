@@ -22,3 +22,4 @@ Authentication and Authorization
 Value Task in C#
 How EFCore works in .Net
 CLR in .Net
+Difference between frameworks
