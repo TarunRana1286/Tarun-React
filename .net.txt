@@ -21,3 +21,4 @@ Span<T> and Memory<T>
 Authentication and Authorization
 Value Task in C#
 How EFCore works in .Net
+CLR in .Net
