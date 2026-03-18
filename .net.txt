@@ -25,3 +25,4 @@ CLR in .Net
 Difference between frameworks
 Revision in ZTM
 New Questionbank Strarted
+Purpose and Use of .csproj file in .Net core project
