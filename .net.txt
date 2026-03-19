@@ -27,3 +27,13 @@ Revision in ZTM
 New Questionbank Strarted
 Purpose and Use of .csproj file in .Net core project
 What is the runtime and SDK in .NET Core?
+8. How would you manage different versions of the .NET Core SDK on the same machine?
+You can use global.json files and specify the version of the .NET SDK you wish to target within a project. When you run .net build or .net run in a directory that contains a global.json file, the SDK version specified in that file takes precedence over any other installed versions.
+
+Here is a code snippet showing how to write a global.json file:
+
+{
+  "sdk": {
+    "version": "2.1.402"
+  }
+}
