@@ -38,3 +38,4 @@ Here is a code snippet showing how to write a global.json file:
   }
 }
 What is the purpose of the global.json file?
+Global SDK vs. Local SDK
