@@ -41,3 +41,15 @@ What is the purpose of the global.json file?
 Global SDK vs. Local SDK
 Explain the role of the NuGet package manager.
 Describe the process of publishing a .NET Core application.
+When publishing a .NET Core application, you compile it and its dependencies for deployment. .NET Core supports various publishing methods and configurations to cater to your specific requirements.
+
+Various Publishing Methods
+1 - Framework-Dependent: Publishes the app without the .NET Core runtime. It indicates which version to use on the target system. The app will only run on systems with matching or newer .NET Core runtimes.
+
+2 - Self-Contained: Packages the app with the .NET Core runtime, allowing it to run on systems without an existing .NET Core installation.
+
+3 - Portable: Typically suitable for use-cases like USB flash or external drives.
+
+4 - Ready-To-Run: Optimizes the app startup time by pre-compiling specific libraries to native code. RTR has the added benefit of being useful for promoting cross-gen and unification common. Thus, RTR Is the default for these modes vs traditional JIT.
+
+What is a .NET Standard and how does it relate to .NET Core?
