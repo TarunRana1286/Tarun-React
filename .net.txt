@@ -53,3 +53,4 @@ Various Publishing Methods
 4 - Ready-To-Run: Optimizes the app startup time by pre-compiling specific libraries to native code. RTR has the added benefit of being useful for promoting cross-gen and unification common. Thus, RTR Is the default for these modes vs traditional JIT.
 
 What is a .NET Standard and how does it relate to .NET Core?
+OOP from DevInterview
