@@ -57,3 +57,4 @@ OOP from DevInterview
 Procedural vs OOP
 Encapsulation
 Abstraction
+Inheritance / Polymorphysm
