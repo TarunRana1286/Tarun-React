@@ -56,3 +56,4 @@ What is a .NET Standard and how does it relate to .NET Core?
 OOP from DevInterview
 Procedural vs OOP
 Encapsulation
+Abstraction
