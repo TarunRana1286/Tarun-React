@@ -58,3 +58,4 @@ Procedural vs OOP
 Encapsulation
 Abstraction
 Inheritance / Polymorphysm
+cohesion
