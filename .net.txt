@@ -60,3 +60,4 @@ Abstraction
 Inheritance / Polymorphysm
 cohesion
 coupling
+Access Specifiers
