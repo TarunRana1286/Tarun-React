@@ -64,3 +64,4 @@ Access Specifiers
 Coupling Relationship with SOLID Principles
 Revision
 Destructor or Finlizers
+Inheritance, mixins, and composition
