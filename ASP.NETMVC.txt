@@ -872,6 +872,167 @@ Use Tuple (quick & dirty):
 C#return View(Tuple.Create(model1, model2));
 Best Practice: Always use a dedicated ViewModel.
 
+51. What is the difference between @Html.Partial and @Html.RenderPartial?
+Both render a partial view, but they differ in how they render:
+
+@Html.Partial("_PartialName")
+Returns an MvcHtmlString. It is inline and can be assigned to a variable or used inside other expressions. Slightly slower because it builds a string first.
+@Html.RenderPartial("_PartialName")
+Writes directly to the response stream. It is faster and more memory-efficient (especially for large partials). It returns void, so it must be called inside a code block.
+
+Best Practice:
+HTML@{ Html.RenderPartial("_Menu"); }   <!-- Preferred for performance -->
+In ASP.NET Core, both are replaced by the more flexible Partial() and RenderPartialAsync() helper methods.
+52. How do you implement Role-based Authorization in ASP.NET MVC?
+Use the [Authorize] attribute with the Roles parameter.
+C#[Authorize(Roles = "Admin")]
+public class AdminController : Controller { ... }
+
+[Authorize(Roles = "Admin, Manager, Editor")]
+public ActionResult Approve() { ... }
+You can apply multiple roles using comma separation (OR logic). For AND logic (user must have all roles), create a custom authorization filter.
+In ASP.NET Core, role-based authorization is combined with policy-based authorization for more flexibility.
+53. What is Output Caching and how do you use it?
+Output Caching stores the rendered HTML output of an action or controller in memory so subsequent requests can be served faster without re-executing the action.
+C#[OutputCache(Duration = 60, VaryByParam = "id")]   // Cache for 60 seconds
+public ActionResult Details(int id)
+{
+    return View();
+}
+Common parameters:
+
+Duration – Cache duration in seconds
+VaryByParam – Cache different versions based on parameters ("*", "id", "none")
+VaryByHeader, VaryByCustom, Location (Server, Client, Any, None)
+
+Note: OutputCache is less commonly used today. In ASP.NET Core, use Response Caching Middleware instead.
+54. Explain the concept of Areas in ASP.NET MVC with an example.
+Areas allow you to partition a large application into smaller, independent functional modules (e.g., Admin, Blog, Store, CustomerPortal). Each area has its own controllers, views, and models.
+How to create:
+
+Right-click project → Add → Area → Name it "Admin"
+
+Folder structure:
+textAreas/
+  Admin/
+    Controllers/
+    Views/
+    Models/
+Controller example:
+C#[Area("Admin")]
+public class DashboardController : Controller
+{
+    public ActionResult Index()
+    {
+        return View();
+    }
+}
+Routing (MVC 5):
+
+Automatic area registration in AreaRegistration.cs
+URL: /Admin/Dashboard/Index
+
+Areas help with organization, routing isolation, and team collaboration on large projects.
+55. How do you handle exceptions globally in ASP.NET MVC?
+You can handle exceptions at multiple levels. For global handling:
+
+Register HandleErrorAttribute in FilterConfig.cs:
+
+C#public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+{
+    filters.Add(new HandleErrorAttribute());
+}
+
+Create a custom error page in web.config:
+
+XML<customErrors mode="On" defaultRedirect="~/Error/Error">
+    <error statusCode="404" redirect="~/Error/NotFound"/>
+    <error statusCode="500" redirect="~/Error/ServerError"/>
+</customErrors>
+
+Override OnException in a base controller or use a global IExceptionFilter.
+
+In ASP.NET Core, global exception handling is done using middleware:
+C#app.UseExceptionHandler("/Home/Error");
+56. What is the purpose of the [ChildActionOnly] attribute?
+The [ChildActionOnly] attribute ensures that an action method can only be called as a child action (via @Html.Action() or @Html.RenderAction()), not directly via a URL request.
+C#[ChildActionOnly]
+public ActionResult Menu()
+{
+    var menuItems = GetMenuItems();
+    return PartialView("_Menu", menuItems);
+}
+This improves security and clarity by preventing direct browser access to helper actions that are meant only for internal use.
+Note: This attribute is obsolete in ASP.NET Core. Use View Components instead.
+57. How do you implement Search functionality in ASP.NET MVC?
+Simple search is usually implemented using a form with GET method.
+Controller:
+C#public ActionResult Index(string searchString)
+{
+    var products = _repository.GetAll();
+
+    if (!string.IsNullOrEmpty(searchString))
+    {
+        products = products.Where(p => p.Name.Contains(searchString) 
+                                    || p.Description.Contains(searchString));
+    }
+
+    return View(products.ToList());
+}
+View:
+HTML@using (Html.BeginForm("Index", "Product", FormMethod.Get))
+{
+    <input type="text" name="searchString" value="@ViewBag.SearchString" />
+    <button type="submit">Search</button>
+}
+For advanced search, use ViewModels with multiple filters.
+58. What are the advantages of using ASP.NET MVC over WebForms?
+Major advantages:
+
+Clean Separation of Concerns (MVC pattern)
+Full control over HTML and HTTP (no hidden ViewState)
+Testability – Controllers and actions are easy to unit test
+SEO-friendly URLs via routing
+Lightweight and faster performance
+Better support for modern web development (REST, AJAX, mobile)
+Easier integration with JavaScript frameworks (Angular, React)
+Supports TDD and Dependency Injection better
+
+WebForms is event-driven and abstracts too much, leading to large ViewState and difficult testing.
+59. How do you use JSON in ASP.NET MVC?
+Return JSON from an action using JsonResult:
+C#public JsonResult GetUsers()
+{
+    var users = _userService.GetAll();
+    return Json(users, JsonRequestBehavior.AllowGet);   // AllowGet for security
+}
+For POST requests (safer):
+C#[HttpPost]
+public JsonResult SaveUser(UserViewModel model)
+{
+    if (!ModelState.IsValid)
+        return Json(new { success = false, errors = ModelState });
+
+    // save logic
+    return Json(new { success = true, id = newId });
+}
+In ASP.NET Core, use return Ok(users); or return Json(users); with ControllerBase.
+60. Explain the concept of Unobtrusive JavaScript in ASP.NET MVC.
+Unobtrusive JavaScript means keeping JavaScript code separate from HTML markup. Instead of inline event handlers (onclick="..."), behavior is attached using data attributes and external scripts.
+ASP.NET MVC uses this approach with:
+
+jquery.validate.unobtrusive.js
+Data attributes like data-val="true", data-val-required, etc. for client-side validation
+
+Benefits:
+
+Cleaner HTML
+Better separation of concerns
+Easier maintenance
+Progressive enhancement
+
+The framework automatically generates these data attributes when you use @Html.ValidationMessageFor() and validation attributes on models.
+
 
 
 
