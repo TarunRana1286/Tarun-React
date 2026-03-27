@@ -1385,6 +1385,184 @@ DI is built-in. Register in Program.cs:
 C#builder.Services.AddScoped<IUserService, UserService>();
 The framework automatically injects dependencies into controllers.
 
+91. What is the difference between ASP.NET MVC and ASP.NET Core MVC?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureASP.NET MVC (5)ASP.NET Core MVCFrameworkBuilt on .NET FrameworkBuilt on .NET (cross-platform)PerformanceGoodSignificantly betterDependency InjectionNot built-in (requires third-party)Built-in (IServiceCollection)Configurationweb.configappsettings.json + strongly typedHostingIIS onlyIIS, Kestrel, Nginx, Docker, etc.ModularHeavy (System.Web)Lightweight and modularRoutingConventional + AttributeAttribute routing preferredView EngineRazorRazor (improved)Async SupportGoodFirst-class (default recommendation)
+Conclusion: ASP.NET Core is the future. Most new projects use ASP.NET Core MVC.
+92. How do you implement API versioning in ASP.NET MVC?
+API versioning allows multiple versions of the same API to coexist.
+Common approaches:
+
+Query string versioning (?api-version=1.0)
+URL versioning (/api/v1/products)
+Header versioning
+
+Example using URL versioning (Attribute Routing):
+C#[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
+public class ProductsController : Controller
+{
+    [HttpGet]
+    public ActionResult Get() { ... }   // v1
+
+    [HttpGet, MapToApiVersion("2.0")]
+    public ActionResult GetV2() { ... } // v2
+}
+Popular library: Microsoft.AspNetCore.Mvc.Versioning (mainly for Core, but similar concepts apply).
+93. What is the purpose of the ActionName attribute?
+The [ActionName] attribute allows you to give a different name to an action method than its actual method name.
+Use cases:
+
+When you want a clean URL but method name follows C# naming conventions
+To handle overloaded actions with same HTTP verb
+
+C#[ActionName("List")]
+public ActionResult GetAllUsers()
+{
+    return View();
+}
+URL will be /Controller/List instead of /Controller/GetAllUsers.
+94. How do you prevent Cross-Site Scripting (XSS) attacks in ASP.NET MVC?
+Prevention techniques:
+
+Encode output – Use @Html.Encode() or Razor automatically encodes by default (@Model.Name).
+Use AntiXSS Library or HtmlSanitizer for rich text input.
+Validate input using Data Annotations.
+Use [AllowHtml] only when absolutely necessary (and sanitize).
+Content Security Policy (CSP) headers.
+Never use Html.Raw() unless you fully trust the content.
+
+C#// Safe by default in Razor
+<div>@Model.UserInput</div>
+95. What are Tag Helpers in ASP.NET Core MVC?
+Tag Helpers are server-side components that make Razor markup look like standard HTML.
+They replace HTML Helpers in modern ASP.NET Core.
+Examples:
+HTML<!-- Instead of @Html.TextBoxFor -->
+<input asp-for="Email" class="form-control" />
+
+<!-- Instead of @Html.ActionLink -->
+<a asp-controller="Home" asp-action="Index">Home</a>
+
+<!-- Form -->
+<form asp-controller="Account" asp-action="Login" method="post">
+    <input asp-for="Email" />
+</form>
+Advantages: Cleaner, HTML-like syntax, better IntelliSense, easier for designers.
+96. How do you implement a custom View Engine in ASP.NET MVC?
+You can create a custom view engine by implementing IViewEngine.
+Most common reason: To support different templating engines (e.g., Spark, Razor with custom syntax).
+Basic steps:
+
+Implement IView and IViewEngine
+Register in ViewEngines.Engines in Global.asax
+
+Note: This is advanced and rarely needed. Most projects stick with the default Razor View Engine.
+97. What is the purpose of the FromUri and FromBody attributes? (Web API context)
+These attributes control model binding source in Web API / API controllers:
+
+[FromUri] – Bind from query string or route data (default for simple types)
+[FromBody] – Bind from request body (usually JSON) – commonly used for complex objects in POST/PUT
+
+Example:
+C#[HttpPost]
+public ActionResult Create([FromBody] UserViewModel model)
+{
+    ...
+}
+In ASP.NET Core, [FromBody] is often not needed due to better default inference, but still useful for clarity.
+98. How do you optimize the performance of an ASP.NET MVC application?
+Performance optimization techniques:
+
+Use Bundling and Minification
+Enable Output Caching where appropriate
+Use Async/Await for I/O operations
+Optimize database queries (indexing, eager loading with EF)
+Use CDN for static files (CSS, JS, images)
+Enable GZip compression
+Minimize ViewState (not applicable in MVC, but avoid large models)
+Use distributed caching (Redis) instead of Session
+Profile with tools like MiniProfiler, dotnet-trace, or Application Insights
+
+99. What is the difference between Controller and ControllerBase?
+
+Controller – Inherits from ControllerBase. Adds support for Views (return View()), ViewBag, TempData, HTML helpers, etc. Used for MVC (web pages).
+ControllerBase – Lightweight base class without view support. Used for Web API controllers that only return data (JSON, status codes).
+
+In ASP.NET Core, you can inherit from Controller for mixed MVC + API or from ControllerBase for pure APIs (recommended for APIs to keep them lightweight).
+100. Explain the complete request life cycle of an ASP.NET MVC application.
+The full MVC Request Life Cycle:
+
+Request arrives at IIS / Server
+Routing – URL is matched to a route (conventional or attribute)
+Controller Factory creates the Controller instance
+Authorization Filter runs ([Authorize])
+Action Filters (OnActionExecuting)
+Model Binding & Validation
+Action Method executes
+Action Filters (OnActionExecuted)
+Result Filters & ActionResult Execution (e.g., View rendering)
+View Engine renders the view (Razor)
+Response is sent back to the client
+
+Additional steps include Exception Filters if any error occurs, and global filters registered in FilterConfig.
+This lifecycle is more streamlined and modular in ASP.NET Core.
+
 
 
 
