@@ -281,3 +281,222 @@ XML<customErrors mode="On" defaultRedirect="~/Error/Error">
 </customErrors>
 In ASP.NET Core: Use middleware (app.UseExceptionHandler("/Error")) or IExceptionFilter.
 Best practice: Log exceptions (using Serilog/ELMAH) and show user-friendly messages without leaking sensitive info.
+
+21. What is Dependency Injection and how do you implement it in ASP.NET MVC?
+Dependency Injection (DI) is a design pattern where dependencies (services, repositories, etc.) are injected into a class rather than being created inside it. It promotes loose coupling, testability, and follows the Dependency Inversion Principle (DIP).
+In ASP.NET MVC 5:
+
+MVC does not have built-in DI. You typically use third-party containers like Unity, Ninject, Autofac, or Simple Injector.
+Implement via a custom IDependencyResolver or controller factory.
+
+Example with Autofac (common approach):
+C#// In Global.asax.cs
+protected void Application_Start()
+{
+    var builder = new ContainerBuilder();
+    builder.RegisterControllers(typeof(MvcApplication).Assembly);
+    builder.RegisterType<UserRepository>().As<IUserRepository>();
+    
+    var container = builder.Build();
+    DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+}
+In ASP.NET Core MVC, DI is built-in (using IServiceCollection in Program.cs):
+C#builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddControllersWithViews();
+Then inject in controller:
+C#public class UserController : Controller
+{
+    private readonly IUserRepository _repo;
+    public UserController(IUserRepository repo) => _repo = repo;
+}
+Best practice: Always program against interfaces.
+22. Explain the concept of Action Filters.
+Action Filters are attributes that allow you to execute code before or after an action method runs. They enable cross-cutting concerns like logging, authorization, exception handling, etc.
+Types of filters (in order of execution):
+
+Authorization filters (IAuthorizationFilter)
+Action filters (IActionFilter – OnActionExecuting, OnActionExecuted)
+Result filters (IResultFilter)
+Exception filters (IExceptionFilter)
+
+Built-in examples:
+
+[Authorize]
+[HandleError]
+[OutputCache]
+[ValidateAntiForgeryToken]
+
+Custom filter example:
+C#public class LoggingFilterAttribute : ActionFilterAttribute
+{
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
+    {
+        // Log before action
+        base.OnActionExecuting(filterContext);
+    }
+}
+Apply globally, at controller, or action level. In ASP.NET Core, filters are more powerful with IAsyncActionFilter for async support.
+23. How do you implement AJAX in ASP.NET MVC?
+AJAX allows partial page updates without full postback.
+Common ways:
+
+Using jQuery AJAX (most popular):
+
+JavaScript$.ajax({
+    url: '/User/GetUser/5',
+    type: 'GET',
+    success: function(data) { $('#result').html(data); }
+});
+
+Using Ajax helper (MVC 5):
+
+HTML@Ajax.ActionLink("Load User", "GetUser", new AjaxOptions { UpdateTargetId = "resultDiv", InsertionMode = InsertionMode.Replace })
+
+Return JsonResult from action:
+
+C#public JsonResult GetUser(int id)
+{
+    var user = _repo.Get(id);
+    return Json(user, JsonRequestBehavior.AllowGet);
+}
+In modern apps, prefer fetch API or Axios + return JsonResult or use Razor Pages / Blazor for better separation.
+24. What are custom model binders and when would you use them?
+Custom Model Binders allow you to control how model binding happens for complex or non-standard types.
+When to use:
+
+Binding to custom types (e.g., DateTime with specific format)
+Binding from multiple sources
+Complex object graphs with special logic
+
+Implementation:
+C#public class CustomDateTimeBinder : IModelBinder
+{
+    public Task BindModelAsync(ModelBindingContext bindingContext)
+    {
+        // Custom parsing logic
+        var value = bindingContext.ValueProvider.GetValue(bindingContext.ModelName).FirstValue;
+        if (DateTime.TryParseExact(value, "dd/MM/yyyy", ...))
+        {
+            bindingContext.Result = ModelBindingResult.Success(parsedDate);
+        }
+        return Task.CompletedTask;
+    }
+}
+Register it globally or with [ModelBinder(BinderType = typeof(CustomDateTimeBinder))] attribute.
+25. What is an ActionResult and what derived classes does it have?
+ActionResult is an abstract base class that represents the result of an action method. The framework executes it to produce the final response.
+Common derived classes:
+
+ViewResult – Renders a Razor view
+PartialViewResult – Renders a partial view
+JsonResult – Returns JSON
+RedirectResult / RedirectToActionResult / RedirectToRouteResult
+ContentResult – Returns plain text/content
+FileResult / FileContentResult / FileStreamResult
+HttpStatusCodeResult / HttpNotFoundResult
+EmptyResult
+
+In ASP.NET Core, many are unified under IActionResult.
+Example:
+C#public ActionResult Index() => View();                    // ViewResult
+public ActionResult GetData() => Json(data);              // JsonResult
+public ActionResult Download() => File(bytes, "application/pdf");
+26. Explain the WebAPI and how it differs from traditional MVC Controllers.
+ASP.NET Web API is a framework for building HTTP services (RESTful APIs) that can be consumed by any client (mobile, SPA, etc.).
+Key differences from MVC Controllers:
+
+Web API returns data (JSON/XML), not views.
+Uses ApiController base class (in Core) vs Controller.
+Content negotiation (chooses format based on Accept header).
+No ViewBag, Razor, or HTML helpers.
+Better support for HTTP verbs ([HttpGet], [HttpPost], etc.).
+Stateless by design.
+
+In ASP.NET Core, MVC and Web API are unified — the same Controller class can return views or JSON.
+27. Describe the role of Global.asax in ASP.NET MVC?
+Global.asax is the application-level code file. It contains event handlers for the application lifecycle.
+Important events:
+
+Application_Start() – Runs once when app starts (register routes, filters, bundles, DI)
+Application_End()
+Session_Start() / Session_End()
+Application_Error() – Global error handling
+Application_BeginRequest() / EndRequest()
+
+In ASP.NET Core, Global.asax is replaced by Program.cs and Startup.cs (or minimal hosting model).
+28. How do you handle caching in ASP.NET MVC?
+Caching improves performance by storing frequently accessed data.
+Types:
+
+Output Caching: [OutputCache(Duration = 60, VaryByParam = "id")] on action or controller.
+Data Caching: Use MemoryCache or HttpRuntime.Cache (MVC 5).
+Donut Caching / Fragment Caching with partial views.
+Client-side caching via HTTP headers (Cache-Control).
+
+In ASP.NET Core:
+
+Built-in IMemoryCache and IDistributedCache (Redis/SQL Server).
+Response Caching Middleware.
+
+Best practice: Cache at multiple levels (data, output, client) and invalidate properly.
+29. What are Bundling and Minification and how do they improve performance?
+Bundling: Combines multiple CSS/JS files into a single file to reduce HTTP requests.
+Minification: Removes whitespace, comments, shortens variable names to reduce file size.
+In MVC 5 (in BundleConfig.cs):
+C#bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
+    "~/Scripts/jquery-{version}.js"));
+
+bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
+Rendered in layout:
+HTML@Scripts.Render("~/bundles/jquery")
+@Styles.Render("~/Content/css")
+Benefits: Fewer requests, smaller payload → faster page load.
+In ASP.NET Core, bundling/minification is usually handled by Webpack, Vite, Gulp, or built-in WebOptimizer / Bundler & Minifier extension.
+30. Explain the differences between GET and POST actions in ASP.NET MVC.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AspectGETPOSTPurposeRetrieve dataSubmit/create/update dataData in URLVisible (query string)Not visible (in body)IdempotentYes (safe to repeat)NoSecurityLess secure for sensitive dataBetter for sensitive dataCachingCan be cachedShould not be cachedBookmarkableYesNoAttributes[HttpGet] (default)[HttpPost]
+Use GET for read operations and POST for write operations. Always use anti-forgery token with POST.
