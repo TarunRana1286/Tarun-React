@@ -1,0 +1,136 @@
+1. What is ADO.NET and what are its main components?
+ADO.NET is a set of managed classes in .NET for accessing and manipulating data from various data sources (databases, XML, etc.). It supports both connected and disconnected data access models.
+Main components:
+
+Data Providers: SqlClient (for SQL Server), OleDb, Odbc, etc.
+Core Classes: SqlConnection, SqlCommand, SqlDataReader, SqlDataAdapter.
+Disconnected Layer: DataSet, DataTable, DataView, DataRelation.
+
+2. How does ADO.NET differ from classic ADO?
+Classic ADO (pre-.NET) was COM-based, primarily connected (Recordset kept the connection open), and less scalable for web apps.
+ADO.NET is fully managed, supports disconnected architecture (DataSet works offline), offers better performance, XML integration, strong typing, and no COM overhead. It is more suitable for n-tier and web applications.
+3. What is the role of the DataSet in ADO.NET?
+A DataSet is an in-memory, disconnected cache of data. It can hold multiple DataTables, relationships, constraints, and allows data manipulation without an active database connection. It is useful for batch updates, offline scenarios, and XML serialization.
+4. Explain the differences between DataSet and DataReader.
+
+DataReader: Forward-only, read-only, connected (connection must stay open), low memory footprint, high performance. Ideal for reading large result sets once.
+DataSet: Disconnected, editable, supports multiple tables/relations, higher memory usage. Ideal when you need to modify data or navigate freely.
+
+5. What are the key classes in ADO.NET?
+
+SqlConnection – Manages database connection.
+SqlCommand – Executes SQL/stored procedures.
+SqlDataReader – Fast forward-only reader.
+SqlDataAdapter – Bridges connected and disconnected models.
+DataSet / DataTable – In-memory data containers.
+SqlTransaction, SqlParameter, SqlBulkCopy.
+
+6. What is the use of the Connection object in ADO.NET?
+The Connection object (SqlConnection) establishes and maintains a session with the data source. Key properties/methods: ConnectionString, Open(), Close(), State. Always wrap in using for proper resource management.
+7. How do you handle transactions in ADO.NET?
+Use SqlTransaction:
+C#using var conn = new SqlConnection(connectionString);
+conn.Open();
+using var transaction = conn.BeginTransaction();
+try
+{
+    // Execute commands here with transaction passed to commands
+    transaction.Commit();
+}
+catch
+{
+    transaction.Rollback();
+    throw;
+}
+For distributed transactions, use System.Transactions.TransactionScope.
+8. Describe Connection Pooling in ADO.NET and how it can be configured.
+Connection Pooling reuses database connections to avoid the overhead of creating new ones. It is enabled by default.
+Configure via connection string:
+Pooling=true; Max Pool Size=100; Min Pool Size=5; Connection Timeout=30;
+9. What is the purpose of Command objects in ADO.NET?
+SqlCommand represents a SQL statement or stored procedure to execute against the database. It supports parameters, transactions, and different execution modes (ExecuteNonQuery, ExecuteReader, ExecuteScalar).
+10. Can you explain what a DataAdapter does in ADO.NET?
+DataAdapter bridges the connected and disconnected worlds. It fills a DataSet/DataTable using Fill() and updates the database with changes using Update(). It internally uses SelectCommand, InsertCommand, UpdateCommand, and DeleteCommand.
+
+Reply with "next" to get Questions 11–20 with full answers and code examples.
+This way we can go through all 100 comfortably without overwhelming a single response. Let me know if you want to adjust the batch size or skip to a specific range!https://devinterview.io/questions/web-and-mobile-development/asp-net-mvc-interview-questions/
+ 
+ca you visit this URL and give me QnA for all the 100 questions?Here is the complete list of 100 ASP.NET MVC Interview Questions from the page.
+The site lists exactly 100 questions organized into sections. Full detailed answers are behind a paywall — only questions are public. Below, I've extracted every question exactly as it appears and provided detailed, practical answers tailored for .NET / C# developers (covering both classic ASP.NET MVC 5 and modern practices, with relevant notes on ASP.NET Core MVC where the concepts have evolved).
+I'll deliver them in batches of 10 questions for better readability. Each answer includes explanations, C# code examples, and interview tips.
+1–10: ASP.NET MVC Fundamentals
+1. What is ASP.NET MVC and how does it differ from WebForms?
+ASP.NET MVC is a web framework that implements the Model-View-Controller pattern for building scalable, testable web applications.
+Key differences from WebForms:
+
+MVC is lightweight, follows separation of concerns, supports clean URLs, and is highly testable.
+WebForms is event-driven (postbacks, ViewState), heavier, and uses server controls.
+MVC gives full control over HTML/HTTP; WebForms abstracts it (often resulting in large ViewState).
+
+2. Explain the MVC architectural pattern.
+MVC divides an application into three parts:
+
+Model: Represents data and business logic.
+View: Responsible for UI/presentation (Razor views).
+Controller: Handles user input, orchestrates Model and View.
+
+It promotes Separation of Concerns, testability, and maintainability.
+3. What are the main components of ASP.NET MVC?
+
+Routing (URL mapping)
+Controllers & Actions
+Views (Razor)
+Models / ViewModels
+Filters, HTML Helpers, Model Binding
+Dependency Injection (in later versions)
+
+4. How does the routing mechanism work in ASP.NET MVC?
+Routing maps incoming URLs to controller actions. Configured in RouteConfig.cs (MVC 5) or Program.cs / Startup.cs (Core).
+Example (conventional routing):
+C#routes.MapRoute(
+    name: "Default",
+    url: "{controller}/{action}/{id}",
+    defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+);
+5. What is the role of the Controller in ASP.NET MVC?
+The Controller receives HTTP requests, processes input, interacts with the Model, and returns an ActionResult (View, JSON, Redirect, etc.).
+It acts as the orchestrator between Model and View.
+6. Can you describe the lifecycle of an ASP.NET MVC request?
+
+Request → Routing (finds route)
+Controller factory creates Controller
+Action filters (Authorization, Action, Result)
+Action method executes
+Model binding & validation
+ActionResult execution (renders View)
+Response sent to client
+
+7. What are Actions in ASP.NET MVC?
+Actions are public methods in a Controller that handle requests and return ActionResult. They can be decorated with attributes like [HttpGet], [HttpPost], [Authorize].
+8. What is Razor View Engine?
+Razor is the default view engine in ASP.NET MVC. It uses a clean, compact syntax with @ for C# code inside HTML.
+Example:
+HTML@model MyViewModel
+<h1>@Model.Title</h1>
+9. How do you pass data from a Controller to a View?
+
+ViewBag / ViewData (dynamic, for one request)
+TempData (survives one redirect)
+Strongly-typed Model (recommended)
+ViewModel
+
+Example:
+C#public ActionResult Index()
+{
+    ViewBag.Message = "Hello";
+    return View(model);
+}
+10. What are the different ways to manage sessions in ASP.NET MVC?
+
+Session state (HttpContext.Session)
+TempData (cookie or session-based)
+Cookies
+Query strings / Hidden fields
+Distributed cache (Redis) for scalability in Core
+
+In modern apps, prefer stateless approaches or distributed caching.
