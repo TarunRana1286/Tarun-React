@@ -652,6 +652,226 @@ In ASP.NET Core, logging is built-in with ILogger<T> injected automatically.
 FeatureTempDataSessionLifetimeSurvives only one redirectSurvives until session expiresStorageUsually Session or CookieServer-side (InProc, StateServer, SQL, Redis)Use CaseSuccess/Error messages after POSTUser-specific data across multiple requestsSize LimitSmall dataLarger data (but careful with memory)Type Safetyobject (needs casting)object (needs casting)
 Recommendation: Use TempData for one-time messages. Prefer distributed cache or database for larger session data in scalable apps.
 
+41. What is the difference between ASP.NET MVC and ASP.NET Web API?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureASP.NET MVCASP.NET Web APIPrimary PurposeBuilding web applications with ViewsBuilding HTTP/REST servicesReturnsViews (HTML), JSON, File, etc.Data (JSON, XML) mainlyBase ClassControllerApiController (in Core)View EngineRazorNot usedContent NegotiationLimitedBuilt-in (based on Accept header)RoutingConventional + AttributeAttribute routing (preferred)Use CaseUser-facing websites, SPAsAPIs for mobile, Angular, React, etc.
+Important Note: In ASP.NET Core, MVC and Web API are unified. The same controller can return View() or Json() / Ok().
+42. How does ASP.NET MVC support RESTful services?
+ASP.NET MVC supports REST by:
+
+Using Attribute Routing with HTTP verbs
+Returning data in JSON/XML format
+Proper status codes
+
+Example:
+C#[Route("api/[controller]")]
+public class ProductsController : Controller
+{
+    [HttpGet("{id}")]
+    public ActionResult Get(int id)
+    {
+        var product = _service.Get(id);
+        if (product == null) return HttpNotFound();
+        return Json(product, JsonRequestBehavior.AllowGet);
+    }
+
+    [HttpPost]
+    public ActionResult Create(Product model)
+    {
+        if (!ModelState.IsValid) return Json(new { success = false });
+        // save
+        return Json(new { success = true, id = newId });
+    }
+}
+In modern projects, developers prefer ASP.NET Core Web API with IActionResult and ControllerBase for cleaner REST implementation.
+43. What are the different types of Action Results in ASP.NET MVC?
+ActionResult is the base class. Common derived types:
+
+ViewResult – Renders a view
+PartialViewResult – Renders partial view
+JsonResult – Returns JSON
+RedirectResult – Redirects to a URL
+RedirectToActionResult – Redirects to another action
+RedirectToRouteResult
+ContentResult – Returns plain text or custom content
+FileResult (FileContentResult, FileStreamResult, FilePathResult)
+HttpStatusCodeResult / HttpNotFoundResult / HttpUnauthorizedResult
+EmptyResult
+
+In ASP.NET Core, most return IActionResult or ActionResult<T>.
+44. How do you implement pagination in ASP.NET MVC?
+Pagination is commonly implemented using Skip() and Take() with LINQ.
+Example (Controller):
+C#public ActionResult Index(int page = 1, int pageSize = 10)
+{
+    var totalItems = _repository.GetTotalCount();
+    var items = _repository.GetAll()
+                           .Skip((page - 1) * pageSize)
+                           .Take(pageSize)
+                           .ToList();
+
+    var model = new PagedListViewModel
+    {
+        Items = items,
+        CurrentPage = page,
+        TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
+    };
+
+    return View(model);
+}
+In View, create simple navigation links or use libraries like PagedList.Mvc or X.PagedList.
+45. Explain the concept of ViewModels in ASP.NET MVC.
+A ViewModel is a model specifically designed for a view. It combines data from one or more domain models and contains only what the view needs.
+Benefits:
+
+Avoids over-posting (security)
+Flattens complex object graphs
+Can include validation specific to UI
+Improves separation of concerns
+
+Example:
+C#public class UserProfileViewModel
+{
+    public int Id { get; set; }
+    public string FullName { get; set; }
+    public string Email { get; set; }
+    public List<OrderSummary> RecentOrders { get; set; }   // from different domain model
+}
+Rule of thumb: Never pass Domain Entities directly to views. Always use ViewModels.
+46. How do you implement file upload in ASP.NET MVC?
+Use HttpPostedFileBase (MVC 5) or IFormFile (Core).
+Controller code:
+C#[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Upload(HttpPostedFileBase file)
+{
+    if (file != null && file.ContentLength > 0)
+    {
+        var fileName = Path.GetFileName(file.FileName);
+        var path = Path.Combine(Server.MapPath("~/Uploads"), fileName);
+        file.SaveAs(path);
+        
+        // Save path to database
+    }
+    return RedirectToAction("Index");
+}
+In View:
+HTML@using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="file" name="file" />
+    <button type="submit">Upload</button>
+}
+In ASP.NET Core, use IFormFile and await file.CopyToAsync().
+47. What is the purpose of the [HttpGet] and [HttpPost] attributes?
+These attributes restrict which HTTP verbs can call an action.
+
+[HttpGet] – Default for read operations (safe, idempotent, cacheable)
+[HttpPost] – For create/update/delete operations (not idempotent)
+
+Benefits:
+
+Prevents accidental data modification via GET
+Clear separation of concerns
+Better REST compliance
+
+You can also use [HttpPut], [HttpDelete], [HttpPatch].
+48. How do you implement sorting in ASP.NET MVC?
+Usually done via query string parameters.
+Controller:
+C#public ActionResult Index(string sortOrder = "name_asc")
+{
+    var products = _repository.GetAll();
+
+    products = sortOrder switch
+    {
+        "name_desc" => products.OrderByDescending(p => p.Name),
+        "price_asc" => products.OrderBy(p => p.Price),
+        "price_desc" => products.OrderByDescending(p => p.Price),
+        _ => products.OrderBy(p => p.Name)
+    };
+
+    ViewBag.CurrentSort = sortOrder;
+    return View(products.ToList());
+}
+In View, create clickable column headers that pass the sortOrder parameter.
+49. What are Layout pages and how do they work?
+Layout pages (_Layout.cshtml) act as master pages. They define the common structure (header, footer, navigation, scripts, CSS) for all views.
+How it works:
+
+Views specify the layout using @Layout = "~/Views/Shared/_Layout.cshtml";
+_ViewStart.cshtml sets default layout for all views
+Use @RenderBody() to render the view content
+Use @RenderSection("scripts", required: false) for optional sections
+
+Example in Layout:
+HTML<body>
+    <header>...</header>
+    @RenderBody()
+    <footer>...</footer>
+    @RenderSection("scripts", required: false)
+</body>
+50. How do you pass multiple models to a single view?
+You cannot directly pass multiple models. Common solutions:
+
+Create a ViewModel that contains all required models (Recommended):
+
+C#public class DashboardViewModel
+{
+    public UserProfile User { get; set; }
+    public List<Order> RecentOrders { get; set; }
+    public Statistics Stats { get; set; }
+}
+
+Use ViewBag or ViewData (not recommended for complex data).
+Use Tuple (quick & dirty):
+
+C#return View(Tuple.Create(model1, model2));
+Best Practice: Always use a dedicated ViewModel.
+
 
 
 
