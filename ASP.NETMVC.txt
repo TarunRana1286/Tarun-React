@@ -1211,6 +1211,180 @@ Final step → Combine all data and save permanently
 
 For complex wizards, many developers now use client-side solutions (JavaScript wizards) with a single POST at the end.
 
+81. What is the purpose of the Html.RenderAction method?
+Html.RenderAction executes a child action and writes the result directly to the response stream.
+HTML@{ Html.RenderAction("Menu", "Shared"); }
+Key Points:
+
+It calls a controller action (unlike Partial which only renders a view).
+The action must be marked with [ChildActionOnly] for security.
+It is useful when the partial needs business logic or data fetching.
+Slightly better performance than Html.Action because it writes directly (no string buffering).
+
+Note: In ASP.NET Core, RenderAction is replaced by View Components, which are more powerful and support async.
+82. How do you implement caching in ASP.NET MVC?
+ASP.NET MVC supports caching at multiple levels:
+
+Output Caching (Action level):
+
+C#[OutputCache(Duration = 300, VaryByParam = "id")]   // Cache for 5 minutes
+public ActionResult Details(int id) { ... }
+
+Data Caching (using MemoryCache):
+
+C#var cache = MemoryCache.Default;
+if (cache["products"] == null)
+{
+    var products = _service.GetAll();
+    cache.Add("products", products, DateTimeOffset.UtcNow.AddMinutes(10));
+}
+
+Fragment Caching using partial views with @OutputCache.
+
+In ASP.NET Core, use built-in Response Caching Middleware and IMemoryCache / IDistributedCache.
+83. What is the difference between ViewBag and ViewData?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureViewBagViewDataTypeDynamicDictionary<string, object>Type CastingNot requiredRequiredPerformanceSlightly slowerFasterIntelliSenseLimitedNoneReadabilityBetterMore explicit
+Common Rule: Both are for passing data from Controller to View for one request only. Prefer strongly-typed models over both for complex scenarios.
+84. How do you upload multiple files in ASP.NET MVC?
+Use IEnumerable<HttpPostedFileBase>:
+Controller:
+C#[HttpPost]
+public ActionResult UploadFiles(IEnumerable<HttpPostedFileBase> files)
+{
+    foreach (var file in files)
+    {
+        if (file != null && file.ContentLength > 0)
+        {
+            var path = Path.Combine(Server.MapPath("~/Uploads"), file.FileName);
+            file.SaveAs(path);
+        }
+    }
+    return RedirectToAction("Index");
+}
+View:
+HTML@using (Html.BeginForm("UploadFiles", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="file" name="files" multiple />
+    <button type="submit">Upload</button>
+}
+In ASP.NET Core, use IFormFileCollection and async upload.
+85. What is the purpose of the RequireHttps attribute?
+The [RequireHttps] attribute forces the action or controller to be accessed only over HTTPS. If a user accesses it via HTTP, they are automatically redirected to the HTTPS version.
+C#[RequireHttps]
+public class AccountController : Controller { ... }
+It helps enforce secure communication and protects sensitive data (login, payments, etc.).
+In ASP.NET Core, use middleware to enforce HTTPS globally.
+86. How do you implement a custom route constraint in ASP.NET MVC?
+Custom route constraints allow you to add custom rules to routing.
+Example – Restrict ID to be greater than 0:
+C#public class MinValueConstraint : IRouteConstraint
+{
+    private readonly int _minValue;
+    public MinValueConstraint(int minValue) => _minValue = minValue;
+
+    public bool Match(HttpContextBase httpContext, Route route, string parameterName, 
+                      RouteValueDictionary values, RouteDirection routeDirection)
+    {
+        if (values.TryGetValue(parameterName, out var value))
+        {
+            return int.TryParse(value.ToString(), out int intValue) && intValue >= _minValue;
+        }
+        return false;
+    }
+}
+Register in RouteConfig.cs and use in route:
+C#constraints: new { id = new MinValueConstraint(1) }
+87. What are the different return types of an Action Method?
+Common ActionResult derived types:
+
+ViewResult / PartialViewResult
+JsonResult
+RedirectResult / RedirectToActionResult
+ContentResult
+FileResult (FileContentResult, FileStreamResult)
+HttpStatusCodeResult, HttpNotFoundResult
+JavaScriptResult (rare)
+EmptyResult
+
+In modern code, many actions return ActionResult or IActionResult (in Core) to allow flexibility.
+88. How do you handle session timeout in ASP.NET MVC?
+Configure session timeout in web.config:
+XML<system.web>
+  <sessionState timeout="20" mode="InProc" />   <!-- 20 minutes -->
+</system.web>
+Handle gracefully in code:
+
+Use Session.IsNewSession check
+Show a friendly message or redirect to login on timeout
+For better scalability, avoid heavy use of Session; prefer distributed cache (Redis) in production
+
+In ASP.NET Core, session is configured in Program.cs with AddSession() and UseSession() middleware.
+89. What is the purpose of the AsyncController class?
+AsyncController was used in older MVC versions to create asynchronous controllers by inheriting from it and using xxxAsync / xxxCompleted pattern.
+Modern Approach (Recommended):
+Simply use async and Task<ActionResult> in regular controllers:
+C#public async Task<ActionResult> GetData()
+{
+    var data = await _service.GetDataAsync();
+    return View(data);
+}
+AsyncController is considered legacy. Always prefer the async/await pattern in new code.
+90. How do you implement dependency injection in controllers?
+In ASP.NET MVC 5 (no built-in DI):
+
+Use third-party containers like Autofac, Ninject, or Unity.
+Implement a custom IDependencyResolver.
+
+Example with Constructor Injection:
+C#public class UserController : Controller
+{
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
+    {
+        _userService = userService;
+    }
+}
+In ASP.NET Core MVC:
+DI is built-in. Register in Program.cs:
+C#builder.Services.AddScoped<IUserService, UserService>();
+The framework automatically injects dependencies into controllers.
+
 
 
 
