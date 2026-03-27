@@ -134,3 +134,150 @@ Query strings / Hidden fields
 Distributed cache (Redis) for scalability in Core
 
 In modern apps, prefer stateless approaches or distributed caching.
+
+11. Explain the concept of TempData, ViewBag, and ViewData.
+
+ViewData: A Dictionary<string, object> that passes data from Controller to View for the current request only. Type casting is required when reading.
+
+C#// Controller
+ViewData["Message"] = "Hello World";
+HTML<!-- View -->
+<h2>@ViewData["Message"]</h2>
+
+ViewBag: Dynamic wrapper around ViewData (no type casting needed). Also limited to the current request.
+
+C#ViewBag.Message = "Hello World";   // Controller
+@ViewBag.Message                    // View
+
+TempData: Uses session (or cookies) to pass data that survives one redirect. Useful for success/error messages after POST-redirect-GET.
+
+C#TempData["Success"] = "Record saved!";
+return RedirectToAction("Index");
+Key difference: ViewData/ViewBag = current request; TempData = survives one redirect. In ASP.NET Core, prefer ViewData or strongly-typed models over ViewBag for type safety.
+12. What are HTML Helpers in ASP.NET MVC?
+HTML Helpers are extension methods that generate HTML markup in Razor views, reducing boilerplate and ensuring consistency.
+Common helpers:
+
+@Html.TextBoxFor(model => model.Name)
+@Html.LabelFor(), @Html.DropDownListFor(), @Html.ValidationMessageFor()
+@Html.BeginForm(), @Html.AntiForgeryToken()
+@Html.ActionLink()
+
+Example:
+HTML@Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+They support strongly-typed binding and automatic validation attributes. In modern ASP.NET Core, Tag Helpers are often preferred over HTML Helpers for cleaner HTML-like syntax.
+13. How does Model Binding work in ASP.NET MVC?
+Model Binding automatically maps incoming HTTP request data (form fields, query strings, route data, JSON) to action method parameters or model properties.
+Process:
+
+DefaultModelBinder looks for matching names.
+Uses value providers (Form, QueryString, RouteData, etc.).
+Performs type conversion and validation.
+
+Example:
+C#[HttpPost]
+public ActionResult Create(UserViewModel model)  // model properties auto-populated
+{
+    if (!ModelState.IsValid) return View(model);
+    // save
+}
+Custom model binders can be created by implementing IModelBinder for complex scenarios (e.g., binding to entities with relationships).
+14. What is the purpose of the _ViewStart file in ASP.NET MVC?
+_ViewStart.cshtml is executed before every view is rendered. It allows setting common layout or other view-wide settings.
+Typical content:
+HTML@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+You can add conditional logic here (e.g., different layouts based on user role). It runs for all views unless overridden in the individual view with @Layout = null; (for partial views).
+15. What are Partial Views and how are they different from View Components?
+Partial Views:
+
+Reusable Razor markup (.cshtml).
+Rendered using @Html.Partial("_PartialView") or @Html.RenderPartial().
+Can accept a model: @Html.Partial("_LoginPartial", model).
+No separate controller logic.
+
+View Components (introduced in MVC 6 / Core):
+
+More powerful and self-contained.
+Have their own C# class (inherits ViewComponent) with Invoke() or InvokeAsync() method.
+Can have logic, dependency injection, and async support.
+Rendered with <vc:component-name></vc:component-name> or @await Component.InvokeAsync("ComponentName", parameters).
+
+Difference: Partial Views are simple markup reuse. View Components are like mini-controllers for complex reusable UI (e.g., sidebar, cart summary) with business logic.
+16. Explain Attribute Routing in ASP.NET MVC.
+Attribute Routing allows defining routes directly on controllers and actions using attributes (introduced in MVC 5).
+Advantages over conventional routing:
+
+More precise control
+Better for RESTful APIs
+Supports constraints and defaults easily
+
+Example:
+C#[Route("products")]
+public class ProductsController : Controller
+{
+    [Route("")]                    // /products
+    [Route("{id:int}")]            // /products/5
+    public ActionResult Details(int id) { ... }
+    
+    [Route("search/{term?}")]      // Optional parameter
+    public ActionResult Search(string term) { ... }
+}
+In ASP.NET Core, attribute routing is the default/recommended approach and is more feature-rich.
+17. How do you implement Forms Authentication in ASP.NET MVC?
+Forms Authentication uses cookies to track authenticated users.
+Steps (MVC 5):
+
+Configure in web.config:
+
+XML<authentication mode="Forms">
+  <forms loginUrl="~/Account/Login" timeout="2880" />
+</authentication>
+
+Use [Authorize] attribute on controllers/actions.
+In Login action:
+
+C#var ticket = new FormsAuthenticationTicket(...);
+var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(ticket));
+Response.Cookies.Add(cookie);
+In ASP.NET Core, Forms Authentication is replaced by Cookie Authentication + ASP.NET Core Identity (much cleaner with SignInManager and UserManager).
+18. What is the AntiForgeryToken() helper and how does it work?
+@Html.AntiForgeryToken() generates a hidden form field and cookie to prevent Cross-Site Request Forgery (CSRF) attacks.
+How it works:
+
+Server generates a unique token (stored in cookie + hidden field).
+On POST, the framework validates that the token in the form matches the cookie token.
+
+Usage:
+HTML@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    ...
+}
+On action: No extra code needed — the framework checks automatically. In Core, it's @Html.AntiForgeryToken() or the [ValidateAntiForgeryToken] attribute.
+19. What is an Area in ASP.NET MVC and how is it used?
+Areas allow partitioning a large application into smaller, independent sections (e.g., Admin, Blog, Shop), each with its own controllers, views, and models.
+Setup:
+
+Right-click project → Add → Area → "Admin"
+Creates Areas/Admin/Controllers, Views, Models
+
+Routing (in AreaRegistration.cs or attribute routing):
+C#[Area("Admin")]
+public class DashboardController : Controller { ... }
+URL example: /Admin/Dashboard/Index
+Areas help with organization, routing isolation, and team collaboration on large projects.
+20. How do you implement error handling in ASP.NET MVC?
+Multiple levels:
+
+Action-level: Use try-catch in actions or [HandleError] attribute.
+Controller-level: Override OnException in base controller.
+Global-level: In FilterConfig.cs register HandleErrorAttribute.
+Custom error pages: Configure in web.config:
+
+XML<customErrors mode="On" defaultRedirect="~/Error/Error">
+  <error statusCode="404" redirect="~/Error/NotFound" />
+</customErrors>
+In ASP.NET Core: Use middleware (app.UseExceptionHandler("/Error")) or IExceptionFilter.
+Best practice: Log exceptions (using Serilog/ELMAH) and show user-friendly messages without leaking sensitive info.
