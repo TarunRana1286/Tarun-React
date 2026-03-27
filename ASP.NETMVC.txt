@@ -1033,6 +1033,184 @@ Progressive enhancement
 
 The framework automatically generates these data attributes when you use @Html.ValidationMessageFor() and validation attributes on models.
 
+61. What is the difference between ViewResult and PartialViewResult?
+
+ViewResult: Used to render a full view page (usually with a layout). It includes @RenderBody() and the complete _Layout.cshtml.
+PartialViewResult: Used to render only a portion of a page (partial view) without the layout. It does not include the layout.
+
+Usage:
+C#public ActionResult Index() => View();                    // Full view + layout
+
+public ActionResult GetSidebar() => PartialView("_Sidebar"); // Only partial
+In views, you call partials using:
+
+@Html.Partial() or @Html.RenderPartial()
+In AJAX scenarios, PartialViewResult is very common.
+
+Rule: Use View() for complete pages and PartialView() for reusable UI fragments.
+62. How do you implement Authentication and Authorization in ASP.NET MVC?
+Authentication (Who are you?):
+
+Traditionally used Forms Authentication (cookie-based).
+In modern apps, use ASP.NET Identity (with UserManager, SignInManager).
+
+Authorization (What can you do?):
+
+Use [Authorize] attribute.
+
+Example with ASP.NET Identity (recommended):
+C#[HttpPost]
+public async Task<ActionResult> Login(LoginViewModel model)
+{
+    var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+    if (result.Succeeded)
+        return RedirectToAction("Index", "Home");
+    return View(model);
+}
+Apply authorization:
+C#[Authorize(Roles = "Admin")]
+public ActionResult ManageUsers() { ... }
+In ASP.NET Core, authentication is configured in Program.cs using AddIdentity or AddAuthentication.
+63. What are the different types of Routing in ASP.NET MVC?
+There are two main types:
+
+Conventional Routing (also called Traditional Routing):
+Defined in RouteConfig.cs
+Pattern-based: {controller}/{action}/{id}
+
+Attribute Routing (introduced in MVC 5, preferred in Core):
+Applied directly on controllers and actions using [Route] attribute.
+More precise and flexible.
+
+
+Example of Attribute Routing:
+C#[Route("api/products")]
+public class ProductsController : Controller
+{
+    [Route("{id:int}")]           // /api/products/5
+    public ActionResult Details(int id) { ... }
+}
+Recommendation: Use Attribute Routing for complex or RESTful routes. Conventional routing works well for simple applications.
+64. How do you use TempData to pass data between actions?
+TempData is used to pass data from one action to another, especially during redirects (POST-Redirect-GET pattern).
+C#[HttpPost]
+public ActionResult Create(Product model)
+{
+    if (ModelState.IsValid)
+    {
+        _service.Save(model);
+        TempData["SuccessMessage"] = "Product created successfully!";
+        return RedirectToAction("Index");
+    }
+    return View(model);
+}
+
+public ActionResult Index()
+{
+    ViewBag.Message = TempData["SuccessMessage"];   // Available only here
+    return View();
+}
+TempData is stored in session (or cookies) and is automatically deleted after the next request.
+65. What is the purpose of the [ValidateInput] attribute?
+The [ValidateInput(false)] attribute disables request validation for an action.
+By default, ASP.NET MVC validates incoming requests to prevent Cross-Site Scripting (XSS) attacks by blocking dangerous input like <script> tags.
+Use case: When you intentionally need to accept HTML or rich text (e.g., blog post editor, WYSIWYG).
+C#[ValidateInput(false)]
+[HttpPost]
+public ActionResult SavePost(PostViewModel model)
+{
+    // Save HTML content safely (after proper sanitization!)
+}
+Warning: Use this very carefully. Always sanitize input using libraries like HtmlSanitizer or AntiXSS.
+In ASP.NET Core, request validation behavior is different and more configurable.
+66. How do you implement a custom Action Filter?
+Create a class that inherits from ActionFilterAttribute:
+C#public class LogActionFilterAttribute : ActionFilterAttribute
+{
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
+    {
+        // Code runs BEFORE action method
+        var actionName = filterContext.ActionDescriptor.ActionName;
+        Debug.WriteLine($"Action {actionName} started at {DateTime.Now}");
+    }
+
+    public override void OnActionExecuted(ActionExecutedContext filterContext)
+    {
+        // Code runs AFTER action method
+        Debug.WriteLine($"Action completed");
+    }
+}
+Apply it:
+C#[LogActionFilter]
+public ActionResult Index() { ... }
+You can also implement IActionFilter, IAsyncActionFilter, etc.
+67. What is the difference between synchronous and asynchronous controllers in ASP.NET MVC?
+
+Synchronous Controllers: Action methods are blocking. The thread waits until the operation completes (e.g., database call).
+Asynchronous Controllers: Use async/await. The thread is released back to the thread pool while waiting for I/O operations.
+
+Example (Async):
+C#public async Task<ActionResult> Details(int id)
+{
+    var product = await _service.GetProductAsync(id);   // Non-blocking
+    return View(product);
+}
+Benefits of async:
+
+Better scalability under high load
+Improved responsiveness in web applications
+Recommended for I/O-bound operations (DB, API calls, file I/O)
+
+In ASP.NET Core, async is the default recommendation.
+68. How do you use Bundling and Minification in ASP.NET MVC?
+Bundling combines multiple CSS/JS files into one. Minification reduces file size by removing whitespace and shortening names.
+Configuration in BundleConfig.cs:
+C#public static void RegisterBundles(BundleCollection bundles)
+{
+    bundles.Add(new ScriptBundle("~/bundles/jquery")
+        .Include("~/Scripts/jquery-{version}.js"));
+
+    bundles.Add(new StyleBundle("~/Content/css")
+        .Include("~/Content/bootstrap.css", "~/Content/site.css"));
+}
+In _Layout.cshtml:
+HTML@Scripts.Render("~/bundles/jquery")
+@Styles.Render("~/Content/css")
+Benefits: Fewer HTTP requests and smaller payload → faster page load.
+In ASP.NET Core, this is usually handled by frontend build tools (Webpack, Vite, etc.).
+69. What is the purpose of the Html.AntiForgeryToken() helper?
+It generates a hidden form field and a cookie token to prevent Cross-Site Request Forgery (CSRF/XSRF) attacks.
+Usage in View:
+HTML@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    ...
+}
+On the POST action, the framework automatically validates the token. If missing or invalid, it throws an error.
+C#[HttpPost]
+[ValidateAntiForgeryToken]   // Explicit attribute (optional in many cases)
+public ActionResult Save(...) { ... }
+This is a critical security feature.
+70. How do you implement a multi-step wizard or form in ASP.NET MVC?
+Common approaches:
+
+Using multiple actions and TempData (simple wizard)
+Using a single ViewModel with steps and conditional rendering
+Using Session to store intermediate data (not recommended for scalability)
+
+Recommended pattern:
+
+Create a WizardViewModel with a CurrentStep property.
+Use a single action that handles different steps based on a hidden field or query string.
+Store partial data in TempData or a temporary database record.
+
+Example flow:
+
+Step 1 → Save to TempData → Redirect to Step 2
+Final step → Combine all data and save permanently
+
+For complex wizards, many developers now use client-side solutions (JavaScript wizards) with a single POST at the end.
+
 
 
 
