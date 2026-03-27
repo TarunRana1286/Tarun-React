@@ -454,6 +454,204 @@ Benefits: Fewer requests, smaller payload → faster page load.
 In ASP.NET Core, bundling/minification is usually handled by Webpack, Vite, Gulp, or built-in WebOptimizer / Bundler & Minifier extension.
 30. Explain the differences between GET and POST actions in ASP.NET MVC.
 
+31. What is the purpose of the [Authorize] attribute?
+The [Authorize] attribute restricts access to authenticated users only. It is an authorization filter that checks if the user is logged in before executing the action.
+C#[Authorize]
+public class AdminController : Controller { ... }
+
+// Action level
+[Authorize(Roles = "Admin, Manager")]
+public ActionResult Delete(int id) { ... }
+
+Without parameters: Requires authentication only.
+With Roles: Checks specific roles.
+With Users: Specific usernames (rarely used).
+
+In ASP.NET Core, it works similarly but integrates with the new Identity system and policy-based authorization:
+C#[Authorize(Policy = "RequireAdmin")]
+It can be applied at controller, action, or globally.
+32. How do you implement custom authorization in ASP.NET MVC?
+Create a custom attribute by inheriting from AuthorizeAttribute and overriding AuthorizeCore() or HandleUnauthorizedRequest().
+Example:
+C#public class CustomAuthorizeAttribute : AuthorizeAttribute
+{
+    protected override bool AuthorizeCore(HttpContextBase httpContext)
+    {
+        // Custom logic - e.g., check IP, subscription, claims, etc.
+        return httpContext.User.Identity.IsAuthenticated 
+               && HasValidSubscription(httpContext.User);
+    }
+
+    protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
+    {
+        filterContext.Result = new RedirectResult("~/Account/AccessDenied");
+    }
+}
+Usage: [CustomAuthorize]
+In ASP.NET Core, prefer Policy-based authorization with IAuthorizationHandler for more flexible and testable logic.
+33. What are Child Actions and how are they different from Partial Views?
+Child Actions are special action methods marked with [ChildActionOnly] that can be rendered inside a parent view.
+C#[ChildActionOnly]
+public ActionResult Menu()
+{
+    var menuItems = _menuService.GetMenu();
+    return PartialView("_Menu", menuItems);
+}
+In View:
+HTML@Html.Action("Menu")   // or @Html.RenderAction("Menu")
+Difference from Partial Views:
+
+Partial Views: Pure markup (no controller logic).
+Child Actions: Have their own action method, can have business logic, model binding, and filters.
+
+Note: Child Actions are deprecated in ASP.NET Core. Use View Components instead (much better performance and async support).
+34. Explain how Validation works in ASP.NET MVC.
+Validation is handled through Data Annotations and ModelState.
+
+Add validation attributes to model properties:
+
+C#public class UserViewModel
+{
+    [Required(ErrorMessage = "Name is required")]
+    [StringLength(50, MinimumLength = 3)]
+    public string Name { get; set; }
+
+    [EmailAddress]
+    [Required]
+    public string Email { get; set; }
+}
+
+In controller:
+
+C#if (!ModelState.IsValid)
+    return View(model);   // returns validation errors to view
+
+In View (Razor):
+
+HTML@Html.ValidationSummary(true)
+@Html.ValidationMessageFor(model => model.Email)
+Client-side validation is enabled automatically via jquery.validate and unobtrusive validation.
+35. What is ModelState and how is it used?
+ModelState is a dictionary that holds the state of model binding and validation.
+
+It contains errors for each property.
+ModelState.IsValid tells whether the model passed all validations.
+You can manually add errors: ModelState.AddModelError("Email", "Email already exists");
+
+It is automatically populated during model binding and is passed to the View so validation messages can be displayed.
+36. How do you create a custom validation attribute?
+Inherit from ValidationAttribute and override IsValid():
+C#public class AgeValidationAttribute : ValidationAttribute
+{
+    private readonly int _minimumAge;
+
+    public AgeValidationAttribute(int minimumAge)
+    {
+        _minimumAge = minimumAge;
+    }
+
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        if (value is int age && age < _minimumAge)
+            return new ValidationResult($"Age must be at least {_minimumAge}.");
+
+        return ValidationResult.Success;
+    }
+}
+Usage:
+C#[AgeValidation(18)]
+public int Age { get; set; }
+In ASP.NET Core, you can also implement IAsyncModelValidator for async validation.
+37. What are Display and Editor Templates?
+Display Templates (DisplayFor): Control how a property is rendered when displaying data.
+Editor Templates (EditorFor): Control how a property is rendered in edit forms.
+Create templates in Views/Shared/DisplayTemplates or EditorTemplates folders.
+Example – Boolean.cshtml (Editor Template):
+HTML@model bool?
+@Html.CheckBox("", Model ?? false, new { @class = "form-check-input" })
+Then:
+HTML@Html.EditorFor(model => model.IsActive)   // automatically uses Boolean template
+This helps maintain consistent UI across the application.
+38. Explain the concept of Scaffolding in ASP.NET MVC.
+Scaffolding is a code-generation feature in Visual Studio that automatically generates CRUD controllers and views based on a model.
+How to use:
+
+Add a model class.
+Right-click Controllers folder → Add → Controller → "MVC Controller with views, using Entity Framework".
+Select Model and DbContext.
+
+It generates:
+
+Controller with Index, Create, Edit, Delete, Details actions
+Corresponding Razor views
+
+Useful for rapid prototyping. In modern development, many developers prefer manual implementation or use tools like CRUD generators with better patterns.
+39. How do you implement logging in ASP.NET MVC applications?
+Common approaches:
+
+ELMAH (legacy, good for error logging)
+log4net or NLog
+Serilog (most popular today)
+Application Insights (Azure)
+
+Example with Serilog in MVC 5 (via Global.asax):
+C#Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("logs/log.txt")
+    .WriteTo.ApplicationInsights(...)
+    .CreateLogger();
+In controller:
+C#private readonly ILogger _logger;
+
+public HomeController(ILogger<HomeController> logger)
+{
+    _logger = logger;
+}
+
+public ActionResult Index()
+{
+    _logger.Information("Home page visited");
+    ...
+}
+In ASP.NET Core, logging is built-in with ILogger<T> injected automatically.
+40. What is the difference between TempData and Session?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureTempDataSessionLifetimeSurvives only one redirectSurvives until session expiresStorageUsually Session or CookieServer-side (InProc, StateServer, SQL, Redis)Use CaseSuccess/Error messages after POSTUser-specific data across multiple requestsSize LimitSmall dataLarger data (but careful with memory)Type Safetyobject (needs casting)object (needs casting)
+Recommendation: Use TempData for one-time messages. Prefer distributed cache or database for larger session data in scalable apps.
+
 
 
 
