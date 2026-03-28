@@ -1549,3 +1549,230 @@ C#public async Task ProcessDataAsync()
     var data = await GetDataAsync().ConfigureAwait(false);
     // Process data
 }
+
+81. What is the difference between String and StringBuilder? (Repeated for completeness)
+
+String is immutable. Every modification creates a new string object.
+StringBuilder is mutable. It modifies the internal buffer without creating new objects.
+
+When to use:
+
+string → for few operations or fixed text.
+StringBuilder → when doing heavy string manipulation inside loops.
+
+82. What is Dependency Injection in C#?
+Dependency Injection (DI) is a design pattern where dependencies are injected into a class rather than created inside it.
+Types of Injection:
+
+Constructor Injection (most common & recommended)
+Property Injection
+Method Injection
+
+Example:
+C#public class UserService
+{
+    private readonly IUserRepository _repository;
+
+    // Constructor Injection
+    public UserService(IUserRepository repository)
+    {
+        _repository = repository;
+    }
+}
+Benefits: Loose coupling, better testability, easier maintenance.
+In ASP.NET Core, DI is built-in via IServiceCollection.
+83. What are SOLID Principles? Explain briefly.
+SOLID is a set of five design principles:
+
+S – Single Responsibility Principle (One class should have only one reason to change)
+O – Open/Closed Principle (Open for extension, closed for modification)
+L – Liskov Substitution Principle (Derived classes should be substitutable for base classes)
+I – Interface Segregation Principle (Many small interfaces > one large interface)
+D – Dependency Inversion Principle (Depend on abstractions, not concretions)
+
+These principles help write maintainable, extensible, and testable code.
+84. What is the difference between Equals() and GetHashCode()?
+
+Equals() → Checks if two objects are equal in value.
+GetHashCode() → Returns a hash code for the object (used in hash-based collections like Dictionary, HashSet).
+
+Important Rule:
+If you override Equals(), you must also override GetHashCode() to maintain consistency.
+C#public override bool Equals(object? obj) { ... }
+
+public override int GetHashCode() => Name.GetHashCode() ^ Age.GetHashCode();
+85. What is IComparable<T> and IComparer<T>?
+
+IComparable<T> → Implemented by the class itself to define its natural ordering (CompareTo method).
+IComparer<T> → External comparer used to provide custom sorting logic.
+
+C#// Natural ordering
+public class Person : IComparable<Person>
+{
+    public int CompareTo(Person? other) => Age.CompareTo(other?.Age);
+}
+
+// Custom sorting
+public class NameComparer : IComparer<Person>
+{
+    public int Compare(Person? x, Person? y) => x.Name.CompareTo(y.Name);
+}
+86. What is yield return and how does it work?
+yield return is used to create iterator methods that return data lazily.
+C#public IEnumerable<int> GetNumbers()
+{
+    for (int i = 0; i < 100; i++)
+    {
+        if (i % 2 == 0)
+            yield return i;        // Pauses and returns value
+    }
+}
+Benefits: Memory efficient, supports deferred execution, works great with LINQ.
+87. What is the difference between early binding and late binding?
+
+Early Binding (Compile-time): Compiler knows the type (normal method calls, generics).
+Late Binding (Runtime): Type is resolved at runtime (using dynamic, Reflection, or COM interop).
+
+Example of Late Binding:
+C#dynamic excel = Activator.CreateInstance(Type.GetTypeFromProgID("Excel.Application"));
+excel.Visible = true;
+Early binding is faster and safer. Late binding is flexible but slower and error-prone.
+88. What are partial methods?
+Partial methods are defined in one part of a partial class and optionally implemented in another.
+C#// Part 1
+partial class MyClass
+{
+    partial void OnDataChanged();   // Declaration
+}
+
+// Part 2
+partial class MyClass
+{
+    partial void OnDataChanged()    // Implementation (optional)
+    {
+        Console.WriteLine("Data changed");
+    }
+}
+If not implemented, the compiler removes the call entirely (no performance cost).
+89. What is Caller Information attributes?
+These attributes (CallerMemberName, CallerFilePath, CallerLineNumber) automatically pass information about the caller.
+C#public void Log(string message,
+    [CallerMemberName] string memberName = "",
+    [CallerFilePath] string filePath = "",
+    [CallerLineNumber] int lineNumber = 0)
+{
+    Console.WriteLine($"[{memberName}] {message} at line {lineNumber}");
+}
+Very useful for logging and debugging.
+90. What is Immutable vs Mutable in C#?
+
+Mutable → Object state can be changed after creation (e.g., List<T>, normal classes).
+Immutable → Object state cannot be changed after creation (new object is created for modifications).
+
+Examples of Immutable:
+
+string
+Records (record Person(string Name))
+Tuple, ValueTuple
+DateTime, Guid
+
+Benefit of Immutability: Thread-safe, easier reasoning, better for functional programming.
+91. What is record struct? (C# 10+)
+A record struct combines the benefits of struct (value type) and record (value-based equality, concise syntax).
+C#public record struct Point(int X, int Y);
+
+var p1 = new Point(10, 20);
+var p2 = p1 with { X = 30 };   // Non-destructive mutation
+Useful for high-performance immutable value types.
+92. What is required modifier? (C# 11+)
+The required modifier ensures that a property must be initialized during object creation.
+C#public class User
+{
+    public required string Email { get; init; }
+    public string? Name { get; init; }
+}
+
+// Must provide Email
+var user = new User { Email = "tarun@example.com" };
+Helps prevent uninitialized required properties.
+93. What are raw string literals? (C# 11+)
+Raw string literals make working with multi-line strings, JSON, regex, etc., much cleaner.
+C#string json = """
+    {
+        "name": "Tarun",
+        "age": 28
+    }
+    """;
+
+string regex = """\d{3}-\d{2}-\d{4}""";
+Supports interpolation with $$ and multiple quotes.
+94. What is file-scoped namespace? (C# 10+)
+Simplifies namespace declaration by removing extra indentation.
+C#// Old way
+namespace MyApp.Services
+{
+    public class UserService { ... }
+}
+
+// New way (C# 10+)
+namespace MyApp.Services;
+
+public class UserService { ... }
+95. What is the difference between Task and ValueTask?
+
+Task → Reference type (class), always allocates on heap.
+ValueTask → Value type (struct), can avoid allocation when operation completes synchronously.
+
+Use ValueTask in high-performance libraries where many operations complete synchronously.
+96. What are global using directives? (C# 10+)
+Allows you to declare using statements once for the entire project.
+In GlobalUsings.cs:
+C#global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+No need to repeat these in every file.
+97. What is Top-level statements? (C# 9+)
+Simplifies Program.cs by removing boilerplate.
+C#// Old way - many lines
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Hello");
+    }
+}
+
+// New way (Top-level statements)
+Console.WriteLine("Hello World!");
+98. What is Pattern Matching enhancements in recent C# versions?
+Modern pattern matching includes:
+
+Property patterns
+List patterns (C# 11)
+Relational patterns (>, <, >=)
+Logical patterns (and, or, not)
+
+Example (C# 11 List Pattern):
+C#if (array is [1, 2, .., 10])
+    Console.WriteLine("Starts with 1,2 and ends with 10");
+99. What are the most important features added in C# 12 and C# 13?
+C# 12:
+
+Primary Constructors
+Collection Expressions ([1, 2, 3])
+Default Lambda Parameters
+
+C# 13:
+
+params collections
+New lock object pattern
+Enhanced pattern matching
+Better performance features
+
+100. How do you keep yourself updated with new C# features?
+
+Follow official .NET blog and C# team announcements
+Read "What's new in C#" documentation every year
+Experiment with new features in small projects
+Follow experts on X (Twitter), YouTube, and GitHub
+Use latest .NET SDK and Visual Studio
