@@ -578,3 +578,256 @@ C#public IEnumerable<int> GetEvenNumbers(int max)
 foreach (var num in GetEvenNumbers(10))
     Console.WriteLine(num);
 Benefits: Memory efficient for large or infinite sequences. Works beautifully with LINQ.
+
+31. What is a Delegate in C#? Explain with an example.
+A Delegate is a type-safe function pointer. It holds a reference to a method with a specific signature.
+C#// Declare a delegate
+public delegate void Notify(string message);
+
+// Method that matches the signature
+public void ShowMessage(string msg)
+{
+    Console.WriteLine("Notification: " + msg);
+}
+
+// Usage
+Notify notifier = new Notify(ShowMessage);
+notifier("Hello World!");        // Calls ShowMessage
+Key Points:
+
+Delegates are used for callbacks, event handling, and functional programming.
+They support multicast (multiple methods can be chained using +=).
+Foundation for Events and LINQ.
+
+32. What is the difference between Delegate and Event?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureDelegateEventPurposeGeneral callback mechanismSpecialized for publish-subscribe patternAccessibilityCan be invoked directly from outsideCan only be invoked from within the classAssignmentCan be directly assigned (=)Can only use += and -=SafetyLess safe (can be cleared by external code)Safer (encapsulated)
+Example of Event:
+C#public class Publisher
+{
+    public event Notify OnNotify;        // Event
+
+    public void RaiseEvent(string msg)
+    {
+        OnNotify?.Invoke(msg);           // Safe invocation
+    }
+}
+Rule: Always use Events for notifications. Use Delegates when you need direct callback control.
+33. What are Anonymous Methods and Lambda Expressions?
+
+Anonymous Method (C# 2.0):
+
+C#Notify notifier = delegate(string msg)
+{
+    Console.WriteLine(msg);
+};
+
+Lambda Expression (C# 3.0+ – Preferred):
+
+C#Notify notifier = msg => Console.WriteLine(msg);
+
+// With multiple parameters and block body
+Action<int, int> add = (a, b) => 
+{
+    int sum = a + b;
+    Console.WriteLine(sum);
+};
+Benefits of Lambda:
+
+Cleaner and more concise syntax
+Foundation of LINQ
+Supports expression-bodied members
+
+34. What is LINQ? Explain LINQ to Objects with an example.
+LINQ (Language Integrated Query) allows querying data sources (collections, databases, XML, etc.) using a SQL-like syntax in C#.
+LINQ to Objects example:
+C#List<int> numbers = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+var evenNumbers = from n in numbers
+                  where n % 2 == 0
+                  orderby n descending
+                  select n;
+
+// Method Syntax (more common in production)
+var even = numbers
+            .Where(n => n % 2 == 0)
+            .OrderByDescending(n => n)
+            .ToList();
+Advantages:
+
+Type-safe
+Readable
+Deferred execution (lazy evaluation)
+
+35. What is the difference between IEnumerable<T> and IQueryable<T>?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureIEnumerable<T>IQueryable<T>ExecutionIn-memory (client-side)Translated to query (e.g., SQL)Where to useLINQ to Objects, in-memory collectionsLINQ to SQL, Entity FrameworkPerformanceExecutes immediately on enumerationBuilds expression tree, defers executionExtension MethodsWorks with delegatesWorks with expression trees
+Rule: Use IEnumerable<T> for in-memory data. Use IQueryable<T> when querying a database (EF Core) so filtering happens on the server.
+36. What are Extension Methods in C#?
+Extension methods allow you to add new methods to existing types without modifying the original type or creating a derived class.
+C#public static class StringExtensions
+{
+    public static bool IsValidEmail(this string email)
+    {
+        return !string.IsNullOrEmpty(email) && email.Contains("@");
+    }
+
+    public static string ToTitleCase(this string str)
+    {
+        return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(str.ToLower());
+    }
+}
+
+// Usage
+string email = "test@example.com";
+bool isValid = email.IsValidEmail();        // Extension method call
+Requirements:
+
+Must be defined in a static class
+Method must be static
+First parameter with this keyword
+
+37. What is the var keyword and when should you use it?
+var is an implicitly typed local variable. The compiler determines the type at compile time.
+C#var number = 10;                    // int
+var name = "Tarun";                 // string
+var list = new List<string>();      // List<string>
+When to use var:
+
+When the type is obvious from the right-hand side
+With complex generic types (var dict = new Dictionary<string, List<int>>())
+In LINQ queries
+
+When NOT to use var:
+
+When the type is not clear from context
+For public fields or properties
+
+38. Explain the dynamic keyword in C#.
+The dynamic keyword bypasses compile-time type checking. Type resolution happens at runtime.
+C#dynamic obj = 10;
+obj = "Hello";           // No compile error
+obj = new { Name = "Tarun" };
+
+Console.WriteLine(obj.Name);   // Resolved at runtime
+Use Cases:
+
+Interacting with COM objects
+Dynamic languages (IronPython)
+JSON deserialization when structure is unknown
+
+Warning: Loses IntelliSense, compile-time safety, and has performance cost.
+39. What is the difference between async and await?
+
+async modifier: Marks a method as asynchronous. Allows the use of await inside it. Changes return type to Task or Task<T>.
+await operator: Pauses execution of the async method until the awaited task completes, without blocking the thread.
+
+C#public async Task<string> GetDataAsync()
+{
+    await Task.Delay(2000);           // Non-blocking wait
+    return "Data Loaded";
+}
+
+// Calling
+string result = await GetDataAsync();
+Key Benefit: Improves scalability (especially in web apps) by freeing threads while waiting for I/O.
+40. What is a Task in C#? Explain Task vs Thread.
+
+Task represents an asynchronous operation. It is part of the Task Parallel Library (TPL).
+Thread is a low-level OS thread.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureTaskThreadAbstraction LevelHigh (managed)Low (OS level)Resource UsageLightweightHeavy (1MB stack per thread)Return ValueCan return value (Task<T>)No direct return valueException HandlingAggregated exceptionsHarder to handleRecommended UseI/O-bound & CPU-bound workVery rare in modern code
+Modern Rule: Prefer Task + async/await over raw Thread or ThreadPool.
