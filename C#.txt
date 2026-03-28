@@ -307,3 +307,274 @@ public class Derived : Base
     public override void Show() => Console.WriteLine("Derived");   // Polymorphic
     // public new void Show() => ...   // Hides base method
 }
+
+21. What is the difference between Abstract Class and Interface in C#?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureAbstract ClassInterfaceKeywordabstract classinterfaceImplementationCan have both implemented and abstract membersOnly declarations (until C# 8)Multiple InheritanceNot supported (single inheritance)Supported (a class can implement many)Access ModifiersCan have private, protected, etc.Members are public by defaultFieldsCan have fieldsCannot have fields (only properties)ConstructorCan have constructorsCannot have constructorsDefault MethodsYesYes (from C# 8 with default implementation)
+When to use:
+
+Abstract Class: When you want to share common implementation + enforce contract.
+Interface: When you want to define a contract that multiple unrelated classes can implement (e.g., IDisposable, IEnumerable<T>).
+
+Modern Tip: Use interfaces with default methods (C# 8+) for "mixin"-like behavior.
+22. Explain Inheritance in C# with an example.
+Inheritance allows a class (derived/child) to acquire properties and methods from another class (base/parent). C# supports single class inheritance only.
+C#public class Animal                  // Base class
+{
+    public string Name { get; set; }
+    public virtual void Eat() => Console.WriteLine("Eating...");
+}
+
+public class Dog : Animal            // Derived class
+{
+    public void Bark() => Console.WriteLine("Woof!");
+
+    public override void Eat()       // Overriding
+    {
+        Console.WriteLine("Dog is eating");
+    }
+}
+Types of Inheritance supported:
+
+Single
+Multilevel (A → B → C)
+Hierarchical (multiple classes inherit from one base)
+
+Not supported: Multiple class inheritance (to avoid diamond problem). Use interfaces instead.
+23. What is Polymorphism in C#? Explain with example.
+Polymorphism means "many forms". It allows treating objects of different derived classes as objects of the base class.
+There are two types:
+
+Compile-time (Static): Method Overloading
+Runtime (Dynamic): Method Overriding + Virtual methods
+
+Example (Runtime Polymorphism):
+C#public class Shape
+{
+    public virtual void Draw() => Console.WriteLine("Drawing shape");
+}
+
+public class Circle : Shape
+{
+    public override void Draw() => Console.WriteLine("Drawing Circle");
+}
+
+public class Rectangle : Shape
+{
+    public override void Draw() => Console.WriteLine("Drawing Rectangle");
+}
+
+// Usage
+Shape shape1 = new Circle();
+Shape shape2 = new Rectangle();
+
+shape1.Draw();     // Output: Drawing Circle
+shape2.Draw();     // Output: Drawing Rectangle
+This is achieved through virtual method table (vtable) at runtime.
+24. What are Sealed Classes and Sealed Methods in C#?
+
+sealed class: Prevents the class from being inherited.
+
+C#public sealed class UtilityHelper { ... }
+// Cannot do: class MyHelper : UtilityHelper { }
+
+sealed method: Prevents a virtual method from being further overridden in derived classes.
+
+C#public class Base
+{
+    public virtual void Method() { ... }
+}
+
+public class Derived : Base
+{
+    public sealed override void Method() { ... }   // No further overriding allowed
+}
+Use Case: Sealed classes are commonly used for security, performance, or when you want to prevent extension (e.g., many .NET framework classes).
+25. What is the difference between is and as operators?
+
+is operator: Checks if an object is compatible with a given type. Returns bool.
+as operator: Attempts to cast and returns null if the cast fails (safe casting for reference types).
+
+C#object obj = "Hello";
+
+if (obj is string str)          // Pattern matching (C# 7+)
+    Console.WriteLine(str);
+
+string result = obj as string;  // Returns string or null
+if (result != null)
+    Console.WriteLine(result);
+Modern Preference: Use is with pattern matching (is string str) as it is more readable and type-safe.
+26. Explain the this and base keywords.
+
+this:
+Refers to the current instance of the class.
+Used to distinguish between parameters and fields with same name.
+Can call other constructors in the same class.
+
+
+C#public class Person
+{
+    private string name;
+    public Person(string name) => this.name = name;   // Disambiguate
+}
+
+base:
+Refers to the base class from the derived class.
+Used to call base class constructor, methods, or properties.
+
+
+C#public class Dog : Animal
+{
+    public Dog() : base() { ... }        // Call base constructor
+
+    public override void Eat()
+    {
+        base.Eat();                      // Call base implementation
+        Console.WriteLine("Dog eating");
+    }
+}
+27. What are Properties in C#? Explain Auto-Implemented Properties.
+Properties provide controlled access to private fields (encapsulation).
+Full Property:
+C#private string _name;
+public string Name
+{
+    get { return _name; }
+    set { _name = value; }
+}
+Auto-Implemented Properties (C# 3.0+):
+C#public string Name { get; set; }                    // Simple
+public string Name { get; private set; }            // Read-only from outside
+public string Name { get; init; }                   // Init-only (C# 9+)
+Init-only properties (C# 9) allow setting value only during object initialization:
+C#public record Person(string Name, int Age);         // Or class with init
+28. What is the difference between struct and class in C#?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Featurestruct (Value Type)class (Reference Type)Memory AllocationStack (usually)HeapAssignmentCopies valueCopies referenceDefault ValueAll fields zeroednullInheritanceCannot inherit / cannot be inheritedSupports inheritanceNullabilityCannot be null (unless nullable)Can be nullPerformanceBetter for small dataBetter for large/complex objectsDestructor/FinalizerNot allowedAllowed
+Rule of Thumb:
+
+Use struct for small, immutable data (Point, DateTime, Vector).
+Use class for everything else.
+
+29. What are Indexers in C#?
+Indexers allow instances of a class to be indexed like arrays.
+C#public class HttpCookie
+{
+    private Dictionary<string, string> _data = new();
+
+    // Indexer
+    public string this[string key]
+    {
+        get => _data[key];
+        set => _data[key] = value;
+    }
+}
+
+// Usage
+var cookie = new HttpCookie();
+cookie["UserId"] = "12345";
+Console.WriteLine(cookie["UserId"]);
+You can also create indexers with multiple parameters or overload them.
+30. What is the yield keyword and how does it work?
+The yield keyword is used to create iterator methods that return IEnumerable<T> or IEnumerator<T>.
+It allows lazy evaluation — values are generated on-demand.
+C#public IEnumerable<int> GetEvenNumbers(int max)
+{
+    for (int i = 0; i <= max; i += 2)
+    {
+        yield return i;        // Returns value and pauses execution
+    }
+}
+
+// Usage
+foreach (var num in GetEvenNumbers(10))
+    Console.WriteLine(num);
+Benefits: Memory efficient for large or infinite sequences. Works beautifully with LINQ.
