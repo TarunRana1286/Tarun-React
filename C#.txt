@@ -831,3 +831,217 @@ Thread is a low-level OS thread.
 
 FeatureTaskThreadAbstraction LevelHigh (managed)Low (OS level)Resource UsageLightweightHeavy (1MB stack per thread)Return ValueCan return value (Task<T>)No direct return valueException HandlingAggregated exceptionsHarder to handleRecommended UseI/O-bound & CPU-bound workVery rare in modern code
 Modern Rule: Prefer Task + async/await over raw Thread or ThreadPool.
+
+
+41. What is Exception Handling in C#? Explain with keywords.
+Exception handling is a mechanism to handle runtime errors gracefully so the application doesn't crash.
+Key Keywords:
+
+try – Contains code that might throw an exception.
+catch – Handles the exception.
+finally – Always executes (cleanup code), whether exception occurs or not.
+throw – Manually throws an exception.
+throws – Not used in C# (unlike Java).
+
+Best Practice Example:
+C#try
+{
+    int result = 10 / 0;                    // Throws DivideByZeroException
+}
+catch (DivideByZeroException ex)
+{
+    Console.WriteLine("Cannot divide by zero: " + ex.Message);
+}
+catch (Exception ex)                        // General catch (should be last)
+{
+    Console.WriteLine("Unexpected error: " + ex.Message);
+}
+finally
+{
+    Console.WriteLine("Cleanup code always runs");
+}
+Modern Tip: Use when clause for filtered exceptions (C# 6+):
+C#catch (Exception ex) when (ex.Message.Contains("timeout"))
+42. What is the difference between throw and throw ex?
+
+throw – Re-throws the original exception while preserving the full stack trace.
+throw ex – Throws the exception again but resets the stack trace (loses original call stack information).
+
+C#try
+{
+    // some code that throws
+}
+catch (Exception ex)
+{
+    // Bad practice
+    throw ex;                    // Stack trace is reset
+
+    // Good practice
+    throw;                       // Preserves original stack trace
+}
+Rule: Always use plain throw; when re-throwing in catch block.
+43. What are Generics in C# and why are they useful?
+Generics allow you to write reusable, type-safe code without boxing/unboxing or casting.
+C#// Generic class
+public class Repository<T>
+{
+    private List<T> _items = new List<T>();
+
+    public void Add(T item) => _items.Add(item);
+    public T Get(int index) => _items[index];
+}
+
+// Generic method
+public T Max<T>(T a, T b) where T : IComparable<T>
+{
+    return a.CompareTo(b) > 0 ? a : b;
+}
+Benefits:
+
+Type safety at compile time
+Better performance (no boxing for value types)
+Code reusability (List<T>, Dictionary<TKey, TValue>, etc.)
+Constraints using where clause (where T : class, where T : new() etc.)
+
+44. What are Collections in C#? Name some important ones.
+Collections are classes for storing groups of objects.
+Major Categories:
+Non-Generic Collections (System.Collections):
+
+ArrayList, Hashtable, Queue, Stack
+
+Generic Collections (Recommended - System.Collections.Generic):
+
+List<T> – Dynamic array
+Dictionary<TKey, TValue> – Key-Value pairs
+HashSet<T> – Unique elements
+Queue<T>, Stack<T>
+LinkedList<T>
+
+Concurrent Collections (Thread-safe):
+
+ConcurrentDictionary<TKey, TValue>, ConcurrentQueue<T>, etc.
+
+Best Practice: Always prefer Generic Collections for type safety and performance.
+45. What is the difference between Array and ArrayList?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureArrayArrayListType SafetyStrongly typedNot type-safe (stores object)SizeFixed sizeDynamic sizePerformanceFasterSlower (boxing/unboxing)NamespaceSystemSystem.Collections
+Modern Recommendation: Use List<T> instead of ArrayList.
+46. What is Reflection in C#?
+Reflection allows inspecting and manipulating types, methods, properties, and fields at runtime.
+C#Type type = typeof(Person);
+
+Console.WriteLine("Class Name: " + type.Name);
+
+var properties = type.GetProperties();
+foreach (var prop in properties)
+{
+    Console.WriteLine(prop.Name);
+}
+
+// Create instance dynamically
+object obj = Activator.CreateInstance(type);
+Use Cases:
+
+ORMs (Entity Framework)
+Dependency Injection containers
+Serialization libraries
+Plugin systems
+
+Note: Reflection is powerful but has performance overhead. Avoid in hot paths.
+47. What is the difference between IList<T> and List<T>?
+
+List<T> – Concrete implementation (class).
+IList<T> – Interface that List<T> implements.
+
+Best Practice:
+C#// Good - Program against interface
+IList<string> names = new List<string>();
+
+// Less flexible
+List<string> names = new List<string>();
+Using interfaces makes your code more testable and flexible (you can easily switch to other implementations).
+48. What are Attributes in C#?
+Attributes are metadata that can be attached to classes, methods, properties, etc.
+C#[Serializable]
+[Obsolete("Use NewMethod instead")]
+public class OldClass { }
+
+[Required]
+[StringLength(50)]
+public string Name { get; set; }
+
+[HttpGet]
+public IActionResult Get() { ... }
+Common Built-in Attributes:
+
+Obsolete, Serializable, Conditional
+Data Annotations: Required, Range, EmailAddress
+MVC/Web API: HttpGet, Authorize, etc.
+
+You can also create custom attributes by inheriting from Attribute class.
+49. What is the nameof operator?
+The nameof operator returns the string name of a variable, type, or member. It is evaluated at compile time.
+C#string name = "Tarun";
+Console.WriteLine(nameof(name));           // Output: name
+
+public void UpdateUser(int userId)
+{
+    if (userId <= 0)
+        throw new ArgumentException("Invalid ID", nameof(userId));
+}
+Advantages:
+
+Refactoring-safe (renaming updates automatically)
+Better than magic strings
+Commonly used in exception messages and logging
+
+50. What are Records in C#? (C# 9+)
+Records are reference types that provide immutable data objects with built-in value-based equality.
+C#// Positional Record (most common)
+public record Person(string Name, int Age);
+
+// With/Init properties
+public record Student
+{
+    public string Name { get; init; }
+    public int Grade { get; init; }
+}
+
+// Usage
+var p1 = new Person("Tarun", 28);
+var p2 = p1 with { Age = 29 };     // Non-destructive mutation
+Benefits:
+
+Automatic Equals(), GetHashCode(), and ToString()
+Value-based equality (not reference)
+Great for DTOs and immutable data
