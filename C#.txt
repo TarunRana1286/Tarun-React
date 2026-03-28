@@ -1362,3 +1362,190 @@ Benefits:
 Less boilerplate code
 Cleaner syntax
 Works with Records and regular classes
+
+71. What is the difference between Stack and Heap memory?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureStack MemoryHeap MemoryAllocationAutomatic (LIFO)Manual (via new)SpeedVery FastSlowerSizeLimitedMuch largerLifetimeScope-based (method ends)Until Garbage Collector cleans itFragmentationNoYesWhat is storedValue types, references, local variablesReference types (objects), boxed values
+Key Point: Value types are usually on stack, reference types on heap. Large structs or captured variables can go to heap.
+72. What is Garbage Collection in C#?
+Garbage Collection (GC) is an automatic memory management feature of the .NET runtime.
+
+It automatically reclaims memory occupied by objects that are no longer in use.
+Runs on a separate thread (background GC in modern .NET).
+Uses Generations (Gen 0, Gen 1, Gen 2) for performance optimization.
+
+Generations:
+
+Gen 0: Short-lived objects (most frequent collection)
+Gen 1: Medium-lived objects
+Gen 2: Long-lived objects (full GC, most expensive)
+
+Tip: Avoid unnecessary object creation in hot paths to reduce GC pressure.
+73. What are the different types of Garbage Collection?
+
+Workstation GC – Optimized for client applications (foreground).
+Server GC – Optimized for server/multi-core applications (uses multiple threads).
+Background GC – Allows application threads to continue while GC runs (default in modern .NET).
+Concurrent GC – Older name for background collection.
+
+You can configure GC mode in runtimeconfig.json or app.config.
+74. What is the difference between Finalize() and Dispose()?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureFinalize() (Destructor)Dispose()PurposeCleanup unmanaged resourcesCleanup both managed & unmanaged resourcesCalled ByGarbage CollectorExplicitly by developer (using)PerformanceNon-deterministic (when GC runs)Deterministic (immediate)Implementation~ClassName()IDisposable interface
+Best Practice: Implement both using the Dispose Pattern (see question 62). Always call Dispose() when possible.
+75. What is Interlocked class used for?
+Interlocked provides atomic operations for variables shared across multiple threads.
+C#private int counter = 0;
+
+// Thread-safe increment
+Interlocked.Increment(ref counter);
+
+// Thread-safe compare and swap
+Interlocked.CompareExchange(ref value, newValue, expectedValue);
+Common Use: Lock-free programming, counters, flags, singleton initialization.
+It is much faster than using lock statement for simple operations.
+76. What is the lock statement and how does it work?
+The lock statement is used for thread synchronization to ensure only one thread can execute a block of code at a time.
+C#private readonly object _lockObject = new object();
+
+public void UpdateData()
+{
+    lock (_lockObject)          // Acquires exclusive lock
+    {
+        // Critical section - only one thread at a time
+        sharedCounter++;
+    }
+}
+Best Practices:
+
+Always lock on a private readonly object
+Keep locked section as small as possible
+Avoid locking on this or public objects
+
+77. What are Mutex, Semaphore, and Monitor?
+
+Monitor → Low-level (used internally by lock).
+Mutex → Named or unnamed synchronization primitive that can work across processes.
+Semaphore → Limits the number of threads that can access a resource simultaneously (e.g., connection pool).
+
+C#using var semaphore = new SemaphoreSlim(3);   // Max 3 concurrent threads
+
+await semaphore.WaitAsync();
+try
+{
+    // Limited resource access
+}
+finally
+{
+    semaphore.Release();
+}
+78. What is Lazy<T> and when should you use it?
+Lazy<T> provides lazy initialization — the object is created only when it is first accessed.
+C#private readonly Lazy<HeavyObject> _heavy = new Lazy<HeavyObject>(() => 
+    new HeavyObject());
+
+public HeavyObject Heavy => _heavy.Value;   // Created only on first access
+Benefits:
+
+Improves startup performance
+Useful for expensive objects (database connections, large configurations)
+Thread-safe by default (LazyThreadSafetyMode can be configured)
+
+79. What is the difference between Parallel.ForEach and normal foreach?
+
+foreach → Sequential execution on single thread.
+Parallel.ForEach → Executes loop iterations in parallel using multiple threads (from ThreadPool).
+
+C#Parallel.ForEach(largeCollection, item =>
+{
+    ProcessItem(item);        // Runs on multiple threads
+});
+When to use:
+
+Use Parallel.ForEach for CPU-bound work on large collections.
+Avoid for I/O-bound work (use async + Task.WhenAll instead).
+
+80. What are async and await best practices?
+Key Best Practices:
+
+Use async/await for I/O-bound operations (not CPU-bound).
+Avoid async void except for event handlers.
+Don't block with .Result or .Wait() — it can cause deadlocks.
+Use ConfigureAwait(false) in library code to improve performance.
+Keep async methods as shallow as possible.
+Return Task or Task<T> (never void for library methods).
+
+Example:
+C#public async Task ProcessDataAsync()
+{
+    var data = await GetDataAsync().ConfigureAwait(false);
+    // Process data
+}
