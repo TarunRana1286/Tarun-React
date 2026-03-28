@@ -1204,3 +1204,161 @@ var person = new Person
 
 // person.Name = "New Name";   // Compile error after initialization
 Benefit: Creates immutable objects easily. Very useful with Records.
+
+61. What is the difference between IEnumerable<T>, ICollection<T>, and IList<T>?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+InterfaceCan Add/Remove?Can Access by Index?Main PurposeIEnumerable<T>NoNoRead-only iteration (foreach)ICollection<T>YesNoBasic collection operationsIList<T>YesYesFull list functionality (index access)
+Best Practice:
+
+Use IEnumerable<T> when you only need to iterate.
+Use IList<T> when you need index-based access and modifications.
+Use ICollection<T> when you need Add/Remove but not indexing.
+
+62. What is the Dispose pattern and using statement?
+The Dispose pattern is used to release unmanaged resources (files, database connections, sockets, etc.).
+Standard Dispose Pattern (IDisposable):
+C#public class MyResource : IDisposable
+{
+    private bool _disposed = false;
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                // Release managed resources
+            }
+            // Release unmanaged resources
+            _disposed = true;
+        }
+    }
+
+    ~MyResource() => Dispose(false);   // Finalizer
+}
+Modern C# (using declaration):
+C#using var resource = new MyResource();
+// resource is automatically disposed at end of scope
+63. What are Expression Bodied Members?
+Expression-bodied members allow writing methods, properties, and constructors using lambda-like syntax (=>).
+C#// Before C# 6
+public string FullName 
+{ 
+    get { return FirstName + " " + LastName; } 
+}
+
+// After C# 6+
+public string FullName => FirstName + " " + LastName;
+
+public override string ToString() => $"{FirstName} {LastName}";
+
+public Person(string name) => Name = name;
+Advantages: Cleaner, more concise code. Widely used in modern C#.
+64. What is the difference between == and ReferenceEquals()?
+
+== : For reference types, compares references by default (unless overloaded).
+object.ReferenceEquals(): Strictly checks if two references point to the same object in memory.
+
+C#string s1 = "hello";
+string s2 = "hello";
+
+Console.WriteLine(s1 == s2);                    // True (string overloads ==)
+Console.WriteLine(ReferenceEquals(s1, s2));     // May be True due to string interning
+Rule: Use ReferenceEquals() when you specifically want to check object identity.
+65. What is volatile keyword?
+The volatile keyword tells the compiler that a field may be modified by multiple threads simultaneously. It prevents certain optimizations (caching in registers or reordering).
+C#public volatile int flag = 0;
+Note: volatile provides limited thread-safety. For proper thread synchronization, prefer lock, Interlocked, or concurrent collections.
+66. What are async streams (IAsyncEnumerable<T>)?
+IAsyncEnumerable<T> allows asynchronous iteration over a sequence of data (introduced in C# 8).
+C#public async IAsyncEnumerable<int> GenerateNumbersAsync()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        await Task.Delay(200);     // Simulate async work
+        yield return i;
+    }
+}
+
+// Consuming
+await foreach (var number in GenerateNumbersAsync())
+{
+    Console.WriteLine(number);
+}
+Use Case: Streaming large data from APIs, databases, or real-time sources.
+67. What is the in parameter modifier? (C# 7.2+)
+The in modifier passes arguments by reference without allowing modification. It is used for performance (avoids copying large structs).
+C#public double CalculateDistance(in Point p1, in Point p2)
+{
+    // p1 and p2 cannot be modified
+    return Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
+}
+Benefit: Zero-copy passing of large value types.
+68. What is the difference between Task.Run and Task.Factory.StartNew?
+
+Task.Run → Simple and recommended. Uses the default TaskScheduler and is optimized for short-running work.
+Task.Factory.StartNew → More configurable (allows custom scheduler, cancellation, etc.) but more complex.
+
+Modern Recommendation:
+C#// Preferred
+var result = await Task.Run(() => LongRunningCalculation());
+Use Task.Factory.StartNew only when you need advanced control.
+69. What is ValueTask<T> and when should you use it?
+ValueTask<T> is a struct-based alternative to Task<T> for high-performance scenarios.
+C#public ValueTask<int> GetValueAsync()
+{
+    if (cache.HasValue)
+        return new ValueTask<int>(cache.Value);   // Synchronous completion (no allocation)
+
+    return new ValueTask<int>(LoadFromDatabaseAsync());
+}
+Use Case: When a method often completes synchronously (cache hit) and you want to avoid Task allocation overhead.
+70. What are Primary Constructors? (C# 12+)
+Primary Constructors allow you to define constructor parameters directly in the class declaration.
+C#// C# 12 Primary Constructor
+public class Person(string name, int age)
+{
+    public string Name { get; } = name;
+    public int Age { get; } = age;
+
+    public void Print() => Console.WriteLine($"{Name} is {Age} years old");
+}
+Benefits:
+
+Less boilerplate code
+Cleaner syntax
+Works with Records and regular classes
