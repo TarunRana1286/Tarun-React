@@ -1045,3 +1045,162 @@ Benefits:
 Automatic Equals(), GetHashCode(), and ToString()
 Value-based equality (not reference)
 Great for DTOs and immutable data
+
+51. What are Tuples in C#? Explain with example.
+Tuples allow you to group multiple values of different types into a single object without creating a custom class.
+C#// Old way (before C# 7)
+Tuple<int, string, bool> oldTuple = Tuple.Create(101, "Tarun", true);
+
+// Modern ValueTuple (C# 7+)
+(int Id, string Name, bool IsActive) person = (101, "Tarun", true);
+
+// Or using named tuple
+var person2 = (Id: 102, Name: "Rahul", IsActive: false);
+
+Console.WriteLine(person.Name);           // Access by name
+Console.WriteLine(person.Item2);          // Access by ItemN (if no name)
+Deconstruction:
+C#var (id, name, active) = person;
+Use Case: Returning multiple values from a method without creating a dedicated class or using out parameters.
+52. What is Pattern Matching in C#?
+Pattern Matching allows you to test whether a value has a certain shape and extract information from it in a concise way. Introduced in C# 7 and greatly enhanced in later versions.
+Examples:
+C#object obj = "Hello World";
+
+// Type Pattern (C# 7)
+if (obj is string str)
+    Console.WriteLine(str.ToUpper());
+
+// Switch Expression (C# 8+ - Most Popular)
+string result = obj switch
+{
+    string s when s.Length > 10 => "Long string",
+    string s => "Short string",
+    int i => $"Number: {i}",
+    null => "Null value",
+    _ => "Unknown type"
+};
+
+// Property Pattern
+if (person is { Age: > 18, Name: not null })
+    Console.WriteLine("Adult with name");
+Pattern matching makes code more readable than traditional if-else or switch statements.
+53. What are Nullable Reference Types? (C# 8+)
+Nullable Reference Types is a feature that helps prevent NullReferenceException at compile time.
+When enabled (<Nullable>enable</Nullable> in .csproj), reference types are non-nullable by default.
+C#string name = null;           // Compile-time warning (non-nullable)
+
+string? nullableName = null;  // Explicitly nullable
+
+// Null-forgiving operator
+string nonNull = nullableName!;   // Tell compiler "I know it's not null"
+Best Practices:
+
+Use string? when null is valid.
+Use ! (null-forgiving) only when you are certain.
+Initialize properties properly or use required init properties.
+
+54. What is the difference between String and string?
+There is no functional difference.
+
+string is an alias for System.String.
+Same applies to int → System.Int32, bool → System.Boolean, etc.
+
+Convention:
+
+Use string, int, bool (lowercase) for variable declarations and parameters (more readable).
+Use String, Int32, Boolean when accessing static members (String.IsNullOrEmpty, Int32.MaxValue).
+
+55. What is the checked and unchecked keyword?
+These keywords control arithmetic overflow checking.
+C#int max = int.MaxValue;
+
+checked
+{
+    int result = max + 1;        // Throws OverflowException
+}
+
+unchecked
+{
+    int result = max + 1;        // Wraps around (becomes negative)
+}
+Default Behavior: In Release mode, C# is unchecked (for performance). In Debug mode, it may behave differently depending on project settings.
+56. What is the unsafe keyword and when is it used?
+The unsafe keyword allows you to use pointers and perform low-level memory operations (similar to C++).
+C#unsafe
+{
+    int x = 10;
+    int* p = &x;                 // Pointer
+    *p = 20;
+    Console.WriteLine(x);        // Output: 20
+}
+Use Cases:
+
+High-performance scenarios (image processing, game engines)
+Interoperating with native code (P/Invoke)
+Working with Span<T> and Memory<T> internals
+
+Note: Unsafe code requires enabling "Allow unsafe code" in project settings.
+57. What are Span<T> and Memory<T>? (C# 7.2+)
+Span<T> and Memory<T> are modern types for high-performance, allocation-free memory access.
+C#ReadOnlySpan<char> span = "Hello World".AsSpan();
+
+Span<byte> buffer = stackalloc byte[100];   // Allocated on stack
+
+// Very efficient slicing without copying
+var slice = buffer.Slice(10, 20);
+Benefits:
+
+Zero heap allocation in many cases
+Much faster than string.Substring() or array slicing
+Used heavily in .NET libraries for performance-critical code
+
+Rule: Use Span<T> for performance-sensitive code (parsing, serialization, etc.).
+58. What is the difference between IAsyncEnumerable<T> and Task<IEnumerable<T>>?
+
+Task<IEnumerable<T>>: Returns all data at once after the entire operation completes.
+IAsyncEnumerable<T> (C# 8+): Streams data asynchronously as it becomes available (like async version of IEnumerable<T>).
+
+C#public async IAsyncEnumerable<int> GetNumbersAsync()
+{
+    for (int i = 0; i < 100; i++)
+    {
+        await Task.Delay(100);
+        yield return i;
+    }
+}
+
+// Usage
+await foreach (var number in GetNumbersAsync())
+{
+    Console.WriteLine(number);
+}
+Best Use: Streaming large datasets, real-time data, or long-running operations.
+59. What are Source Generators in C#?
+Source Generators are a compiler feature (C# 9+) that allows you to generate additional C# source code during compilation based on your project.
+Use Cases:
+
+Auto-generating boilerplate code (DTOs, mappers)
+Serialization/deserialization code
+Performance optimizations (replacing reflection)
+Dependency Injection registration
+
+They run during compilation and produce real C# code that becomes part of your assembly.
+Advantage: Zero runtime cost (unlike reflection).
+60. What is the init accessor? (C# 9+)
+The init accessor allows properties to be set only during object initialization. After initialization, the property becomes read-only.
+C#public class Person
+{
+    public string Name { get; init; }     // Can only be set during creation
+    public int Age { get; init; }
+}
+
+// Usage
+var person = new Person 
+{ 
+    Name = "Tarun", 
+    Age = 28 
+};
+
+// person.Name = "New Name";   // Compile error after initialization
+Benefit: Creates immutable objects easily. Very useful with Records.
