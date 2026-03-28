@@ -1,0 +1,117 @@
+1. What is C# and what are its key features?
+C# is a modern, object-oriented, type-safe programming language developed by Microsoft as part of the .NET ecosystem. It is widely used for building Windows desktop apps, web apps (ASP.NET), mobile apps (Xamarin/MAUI), cloud services (Azure), games (Unity), and more.
+Key features:
+
+Strong typing with excellent IntelliSense
+Object-oriented with support for functional programming (lambdas, LINQ)
+Automatic memory management via Garbage Collector
+Cross-platform with .NET (formerly .NET Core)
+Rich async support (async/await)
+Modern features: records, pattern matching, nullable reference types, source generators, etc.
+High performance with Span<T>, ref structs, and AOT compilation
+
+2. Explain the basic structure of a C# program.
+A basic C# program (top-level statements in modern C# or traditional structure):
+C#// Traditional (before C# 9)
+using System;
+
+namespace MyApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello, World!");
+        }
+    }
+}
+Modern C# 9+ (Top-level statements):
+C#// Program.cs - no class or Main needed
+using System;
+
+Console.WriteLine("Hello, World!");
+Key parts: using directives, namespace, class, static void Main(), or top-level statements.
+3. What are the different types of data types available in C#?
+C# has two main categories:
+
+Value Types: Stored on stack (or inline), copied by value. Examples: int, float, double, bool, char, struct, enum, decimal.
+Reference Types: Stored on heap, copied by reference. Examples: class, string, array, delegate, object, interface.
+
+Also: Nullable value types (int?), dynamic, and pointer types (unsafe context).
+4. What is the difference between value types and reference types?
+
+Value Types: Contain actual data. Assignment copies the value. Passed by value to methods. Live on stack (unless boxed). Examples: primitives, structs.
+Reference Types: Contain a reference (pointer) to the data on the heap. Assignment copies the reference. Passed by reference. Can be null.
+
+Example:
+C#int a = 10;          // value type
+int b = a;           // b is copy of 10
+b = 20;              // a remains 10
+
+string s1 = "hello"; // reference type
+string s2 = s1;      // s2 points to same string
+s2 = "world";        // s1 still "hello" (strings are immutable)
+5. What are nullable types in C#?
+Nullable types allow value types to hold null. Introduced in C# 2.0 as Nullable<T>, shorthand T?.
+C#int? age = null;
+if (age.HasValue)
+    Console.WriteLine(age.Value);
+else
+    Console.WriteLine("Age not set");
+
+// C# 8+ Nullable Reference Types (for reference types)
+string? name = null;   // Explicitly nullable
+Helps prevent NullReferenceException with compiler warnings.
+6. Can you describe what namespaces are and how they are used in C#?
+Namespaces organize code and prevent name collisions. They act like containers for classes, interfaces, etc.
+C#namespace MyCompany.Utilities
+{
+    public class Helper { ... }
+}
+
+// Usage
+using MyCompany.Utilities;
+Helper h = new Helper();
+You can use global:: to access root namespace and nested namespaces with ..
+7. Explain the concept of boxing and unboxing in C#.
+
+Boxing: Converting a value type to a reference type (object). Allocates memory on heap.
+
+C#int i = 10;
+object obj = i;   // boxing (performance cost)
+
+Unboxing: Converting reference type back to value type.
+
+C#int j = (int)obj; // unboxing
+Boxing/unboxing has performance overhead. Avoid in hot paths; use generics instead.
+8. What is Type Casting and what are its types in C#?
+Type casting converts one type to another.
+
+Implicit Casting: Automatic, safe (e.g., int to long).
+Explicit Casting: Manual with (Type) — can throw InvalidCastException.
+as operator: Safe casting for reference types (returns null on failure).
+is operator: Checks compatibility before casting.
+
+Example:
+C#object obj = "hello";
+if (obj is string str)   // Pattern matching (C# 7+)
+    Console.WriteLine(str);
+9. What are operators in C# and can you provide examples?
+Operators perform operations on operands.
+Categories:
+
+Arithmetic: +, -, *, /, %
+Relational: ==, !=, >, <, >=, <=
+Logical: &&, ||, !
+Bitwise: &, , ^, ~, <<, >>
+Assignment: =, +=, etc.
+Null-coalescing: ??, ??=
+Ternary: condition ? true : false
+
+Example: int max = a > b ? a : b;
+10. What is the difference between == operator and .Equals() method?
+
+== operator: For value types, compares values. For reference types, compares references (identity) by default.
+.Equals(): Virtual method. For value types, compares values. For reference types (like string), can be overridden for value equality.
+
+Best practice: Use == for primitives, .Equals() or object.ReferenceEquals() for objects, and StringComparison for strings.
