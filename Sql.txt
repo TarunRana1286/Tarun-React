@@ -626,3 +626,156 @@ WHEN NOT MATCHED BY TARGET THEN
 WHEN NOT MATCHED BY SOURCE THEN
     DELETE;
 Use Cases: ETL processes, data synchronization, slowly changing dimensions (SCD).
+
+41. What is the difference between a Candidate Key and a Primary Key?
+
+Candidate Key: Any column (or set of columns) that can uniquely identify each row in a table. It has the potential to become a primary key.
+Primary Key: One chosen Candidate Key that is actually used as the unique identifier. A table can have only one Primary Key.
+
+Example:
+In a Students table:
+
+StudentID → Candidate Key + Primary Key
+Email → Candidate Key (also unique)
+RollNumber → Candidate Key
+
+A table can have multiple Candidate Keys, but only one becomes the Primary Key.
+42. What is a Composite Key?
+A Composite Key (or Compound Key) is a primary key made up of two or more columns combined to uniquely identify a row.
+SQLCREATE TABLE OrderDetails (
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    PRIMARY KEY (OrderID, ProductID)   -- Composite Key
+);
+Use Case: When no single column can uniquely identify a record (e.g., Order + Product combination).
+43. What are the different types of Relationships in a Database?
+There are three main types of relationships:
+
+One-to-One (1:1): One row in Table A relates to one row in Table B (e.g., User → UserProfile).
+One-to-Many (1:N): One row in Table A relates to multiple rows in Table B (most common). Example: One Department → Many Employees.
+Many-to-Many (N:N): Many rows in Table A relate to many rows in Table B. Implemented using a junction table (e.g., Students ↔ Courses via StudentCourse table).
+
+44. What is Database Normalization? Explain 1NF, 2NF, and 3NF.
+Normalization reduces data redundancy and improves data integrity.
+
+1NF (First Normal Form): Each column contains atomic (indivisible) values. No repeating groups.
+2NF (Second Normal Form): Must be in 1NF + No partial dependency (non-key columns must depend on the entire primary key).
+3NF (Third Normal Form): Must be in 2NF + No transitive dependency (non-key columns must depend only on the primary key, not on other non-key columns).
+
+Higher forms: BCNF, 4NF, 5NF (less commonly asked in interviews).
+Goal: Eliminate redundancy while maintaining data integrity.
+45. What is Denormalization and why is it used?
+Denormalization is the intentional introduction of redundancy into a database by combining tables or adding duplicate data.
+Why use it?
+
+To improve read performance (fewer JOINs).
+Common in data warehouses, reporting systems, and high-read applications.
+Reduces the need for complex joins in analytical queries.
+
+Trade-off: Better read speed but slower writes and higher risk of data inconsistency.
+46. What is the COALESCE function?
+COALESCE() returns the first non-NULL value from a list of arguments.
+SQLSELECT 
+    Name,
+    COALESCE(Phone, Mobile, 'Not Available') AS ContactNumber
+FROM Customers;
+It is very useful for handling NULL values gracefully and providing default values.
+47. What is the NULLIF function?
+NULLIF(expr1, expr2) returns NULL if expr1 equals expr2, otherwise returns expr1.
+Common use case: Avoid division by zero.
+SQLSELECT 
+    TotalSales,
+    ItemsSold,
+    TotalSales / NULLIF(ItemsSold, 0) AS AvgPrice
+FROM Sales;
+48. What is the difference between DELETE and TRUNCATE? (Deep dive)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureDELETETRUNCATETypeDMLDDLWHERE clauseSupportedNot supportedTriggersFires triggersDoes not fire triggersIdentity columnDoes not resetResets identity to seed valueRollbackCan be rolled backCannot be rolled back in most databasesPerformanceSlower (row-by-row)Very fast (deallocates data pages)
+Rule: Use TRUNCATE when you want to delete all data quickly and don't need triggers or rollback.
+49. What are SET operators in SQL?
+SET operators combine results of two or more SELECT queries:
+
+UNION → Combines and removes duplicates
+UNION ALL → Combines and keeps duplicates (faster)
+INTERSECT → Returns only common rows
+EXCEPT / MINUS → Returns rows from first query not present in second
+
+All queries must have the same number of columns and compatible data types.
+50. What is the difference between a Clustered and Non-Clustered Index? (Deep dive)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureClustered IndexNon-Clustered IndexNumber allowed per tableOnly 1Multiple (up to 999 in SQL Server)Physical Data SortingYes — sorts the actual table dataNo — creates separate structureLeaf Node ContentContains actual data rowsContains index keys + pointers to dataLookup SpeedFaster for range scansFaster for exact lookupsCreated by default onPrimary KeyCan be created manually
+Best Practice: Put the Clustered Index on the column most frequently used for range queries or joins.
