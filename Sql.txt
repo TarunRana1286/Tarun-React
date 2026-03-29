@@ -439,3 +439,190 @@ Trade-off: Normalization = better write performance & integrity. Denormalization
 
 FeatureClustered IndexNon-Clustered IndexNumber per tableOnly 1Multiple (up to 999 in SQL Server)Physical Data OrderDetermines physical order of rowsDoes not change physical orderLeaf nodesContain actual data rowsContain pointers to data rowsSpeedFaster for range scansGood for lookups
 Default: Primary Key usually creates a Clustered Index.
+
+31. What is the difference between a Temporary Table and a Table Variable?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureTemporary Table (#Temp)Table Variable (@TableVar)ScopeSession or GlobalOnly within the batch/procedureStorageTempDB (physical)Mostly in memory (can spill to TempDB)TransactionsSupports transactionsLimited transaction supportIndexingCan have indexes, constraintsOnly primary key & unique constraintsStatisticsBetter statistics (helps query optimizer)Limited statisticsPerformanceBetter for large dataBetter for small data (< 100 rows)
+Recommendation:
+
+Use Table Variables for small datasets.
+Use Temporary Tables for larger data or when you need indexes/statistics.
+
+32. What is Dynamic SQL? When should you use it?
+Dynamic SQL is SQL code that is generated and executed at runtime.
+SQLDECLARE @sql NVARCHAR(MAX) = 'SELECT * FROM Employees WHERE DepartmentID = @DeptID';
+DECLARE @DeptID INT = 5;
+
+EXEC sp_executesql @sql, N'@DeptID INT', @DeptID = @DeptID;
+Advantages: Flexibility for dynamic filters, pivoting, etc.
+Disadvantages:
+
+Risk of SQL Injection (always use parameterized queries)
+Harder to debug and maintain
+Can cause plan cache pollution
+
+Best Practice: Use sp_executesql with parameters instead of plain EXEC.
+33. What is a Pivot and Unpivot operation?
+
+PIVOT: Converts rows into columns (turns category values into separate columns).
+UNPIVOT: Converts columns into rows (opposite of PIVOT).
+
+PIVOT Example:
+SQLSELECT * FROM (
+    SELECT DepartmentID, Salary 
+    FROM Employees
+) AS SourceTable
+PIVOT (
+    AVG(Salary)
+    FOR DepartmentID IN ([1], [2], [3])
+) AS PivotTable;
+PIVOT is very useful for reporting and crosstab queries.
+34. What are the different Isolation Levels in SQL?
+Isolation levels control how transactions interact with each other:
+
+Read Uncommitted – Can read uncommitted data (dirty reads).
+Read Committed – Default in most databases. Prevents dirty reads.
+Repeatable Read – Prevents non-repeatable reads.
+Serializable – Highest isolation. Prevents phantom reads (most restrictive).
+Snapshot (SQL Server) – Uses row versioning for better concurrency.
+
+Trade-off: Higher isolation = better consistency but lower concurrency.
+35. What is a Deadlock and how can you prevent it?
+A Deadlock occurs when two or more transactions are waiting for each other to release locks, causing a standstill.
+Prevention Techniques:
+
+Keep transactions as short as possible.
+Access tables in the same consistent order.
+Use lower isolation levels when possible.
+Avoid user interaction inside transactions.
+Use NOLOCK hint carefully (for read-only queries).
+Monitor with sys.dm_tran_locks or deadlock trace flags.
+
+36. What is the difference between a Function and a Stored Procedure?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureFunctionStored ProcedureReturn ValueMust return a valueCan return zero or multiple valuesCan use in SELECTYesNo (except table-valued functions)Transaction supportLimitedFullCan modify dataNo (in scalar functions)YesParametersInput onlyInput + Output
+Rule: Use Functions for computations/logic. Use Stored Procedures for complex business logic and data modification.
+37. What is a Materialized View?
+A Materialized View is a physical copy of the query result stored on disk (unlike a regular View which is virtual).
+Advantages:
+
+Much faster query performance for complex joins/aggregations.
+Can be indexed.
+
+Disadvantages:
+
+Takes storage space.
+Needs to be refreshed (manually or on schedule) to stay updated.
+
+Supported in PostgreSQL, Oracle, and SQL Server (as Indexed Views).
+38. What are the different types of SQL Subqueries?
+
+Scalar Subquery: Returns a single value.
+Multi-row Subquery: Returns multiple rows (used with IN, ANY, ALL).
+Correlated Subquery: References columns from the outer query (executed for each row).
+Nested Subquery: Subquery inside another subquery.
+
+Example of Correlated Subquery:
+SQLSELECT name 
+FROM employees e
+WHERE salary > (SELECT AVG(salary) 
+                FROM employees 
+                WHERE department_id = e.department_id);
+39. How do you optimize a slow-running SQL query?
+Common optimization techniques:
+
+Add proper indexes on WHERE, JOIN, and ORDER BY columns.
+Avoid SELECT * — select only required columns.
+Use EXPLAIN / Execution Plan to analyze the query.
+Avoid functions on indexed columns (e.g., YEAR(date_column)).
+Use JOIN instead of subqueries when possible.
+Limit result set with TOP / LIMIT.
+Update statistics regularly.
+Consider partitioning large tables.
+Use covering indexes.
+
+40. What is the MERGE statement and when is it useful?
+The MERGE statement performs INSERT, UPDATE, and DELETE operations in a single statement based on a join condition.
+SQLMERGE INTO TargetTable AS t
+USING SourceTable AS s
+ON t.ID = s.ID
+WHEN MATCHED THEN
+    UPDATE SET t.Name = s.Name, t.UpdatedDate = GETDATE()
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (ID, Name) VALUES (s.ID, s.Name)
+WHEN NOT MATCHED BY SOURCE THEN
+    DELETE;
+Use Cases: ETL processes, data synchronization, slowly changing dimensions (SCD).
