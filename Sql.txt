@@ -276,3 +276,166 @@ Reduced network traffic
 Easier maintenance
 
 Disadvantages: Can make debugging harder and may increase vendor lock-in.
+
+21. What are Constraints in SQL? List and explain the main types.
+Constraints are rules enforced on data columns to maintain data integrity and accuracy.
+Main types of constraints:
+
+PRIMARY KEY: Uniquely identifies each row. Cannot be NULL. Only one per table.
+FOREIGN KEY: Enforces referential integrity between two tables.
+UNIQUE: Ensures all values in a column are unique (can allow NULL in some databases).
+NOT NULL: Prevents NULL values in a column.
+CHECK: Validates that values in a column satisfy a specific condition.
+DEFAULT: Provides a default value when no value is specified.
+
+Example:
+SQLCREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Age INT CHECK (Age >= 18),
+    DepartmentID INT,
+    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+);
+22. What is a Transaction in SQL? Explain ACID properties.
+A Transaction is a logical unit of work that consists of one or more SQL statements. It must be executed completely or not at all.
+ACID Properties (guaranteed by relational databases):
+
+Atomicity: All operations succeed or all fail (all-or-nothing).
+Consistency: Database moves from one valid state to another.
+Isolation: Transactions are isolated from each other (levels: Read Uncommitted, Read Committed, Repeatable Read, Serializable).
+Durability: Once committed, changes are permanent even if the system crashes.
+
+Basic syntax:
+SQLBEGIN TRANSACTION;
+
+UPDATE Accounts SET Balance = Balance - 1000 WHERE AccountID = 1;
+UPDATE Accounts SET Balance = Balance + 1000 WHERE AccountID = 2;
+
+COMMIT;        -- or ROLLBACK on error
+23. What is the difference between COMMIT and ROLLBACK?
+
+COMMIT: Permanently saves all changes made in the current transaction.
+ROLLBACK: Undoes all changes made in the current transaction and restores the database to the state before the transaction began.
+
+You can also use SAVEPOINT for partial rollbacks.
+24. What are Triggers in SQL?
+A Trigger is a special type of stored procedure that automatically executes when a specific event occurs on a table (INSERT, UPDATE, or DELETE).
+Types:
+
+AFTER Trigger – Fires after the event.
+INSTEAD OF Trigger – Fires instead of the event (useful for views).
+
+Example:
+SQLCREATE TRIGGER trg_AfterInsert_Employee
+ON Employees
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO AuditLog (Action, TableName, ChangedDate)
+    VALUES ('INSERT', 'Employees', GETDATE());
+END;
+Use Cases: Auditing, enforcing complex business rules, synchronizing data.
+25. What is a CTE (Common Table Expression)?
+A Common Table Expression (CTE) is a temporary result set that you can reference within a SELECT, INSERT, UPDATE, or DELETE statement. It improves readability of complex queries.
+SQLWITH EmployeeCTE AS (
+    SELECT EmployeeID, Name, Salary, 
+           ROW_NUMBER() OVER (PARTITION BY DepartmentID ORDER BY Salary DESC) as Rank
+    FROM Employees
+)
+SELECT * FROM EmployeeCTE 
+WHERE Rank = 1;        -- Get highest paid employee per department
+Advantages: Better readability than subqueries, can be recursive.
+26. What are Window Functions? Give examples.
+Window functions perform calculations across a set of rows related to the current row (without collapsing rows like GROUP BY).
+Common Window Functions:
+
+ROW_NUMBER()
+RANK(), DENSE_RANK()
+LAG(), LEAD()
+SUM(), AVG() with OVER()
+
+Example:
+SQLSELECT 
+    Name,
+    Salary,
+    DepartmentID,
+    ROW_NUMBER() OVER (PARTITION BY DepartmentID ORDER BY Salary DESC) as Rank,
+    AVG(Salary) OVER (PARTITION BY DepartmentID) as DeptAvgSalary
+FROM Employees;
+Window functions are extremely powerful for analytical queries.
+27. What is the difference between RANK(), DENSE_RANK(), and ROW_NUMBER()?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FunctionBehavior on TiesExample Ranking (scores: 100, 90, 90, 80)ROW_NUMBER()Always unique numbers1, 2, 3, 4RANK()Same rank for ties, skips next numbers1, 2, 2, 4DENSE_RANK()Same rank for ties, no gaps1, 2, 2, 3
+Use ROW_NUMBER() when you need unique sequencing. Use DENSE_RANK() for true ranking without gaps.
+28. Explain Self Join with an example.
+A Self Join is a regular join where a table is joined with itself. Useful for hierarchical data or comparing rows within the same table.
+Example (Find employees and their managers):
+SQLSELECT 
+    e.name AS Employee,
+    m.name AS Manager
+FROM Employees e
+LEFT JOIN Employees m ON e.manager_id = m.employee_id;
+Common use cases: Organizational hierarchy, bill of materials, finding duplicate records.
+29. What is Normalization vs Denormalization?
+
+Normalization: Process of organizing data to minimize redundancy and dependency. Follows normal forms (1NF, 2NF, 3NF, BCNF). Improves data integrity but may require more JOINs.
+Denormalization: Intentional introduction of redundancy to improve read performance. Common in data warehouses and reporting systems.
+
+Trade-off: Normalization = better write performance & integrity. Denormalization = better read performance.
+30. What is the difference between Clustered and Non-Clustered Index?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureClustered IndexNon-Clustered IndexNumber per tableOnly 1Multiple (up to 999 in SQL Server)Physical Data OrderDetermines physical order of rowsDoes not change physical orderLeaf nodesContain actual data rowsContain pointers to data rowsSpeedFaster for range scansGood for lookups
+Default: Primary Key usually creates a Clustered Index.
