@@ -1,0 +1,85 @@
+1. What is SQL and what is it used for?
+SQL (Structured Query Language) is the standard language for managing and manipulating relational databases. It is used to:
+
+Create, read, update, and delete data (CRUD operations)
+Define and manage database structures (tables, views, indexes)
+Control access and permissions
+Perform complex data analysis and reporting
+
+It is declarative — you describe what you want, not how to do it.
+2. Describe the difference between SQL and NoSQL databases.
+
+SQL (Relational): Structured schema, uses tables with rows & columns, supports ACID transactions, JOINs, strong consistency. Best for complex queries and relationships (e.g., banking, ERP).
+NoSQL: Schema-less or flexible schema, handles unstructured/semi-structured data, high scalability, eventual consistency. Best for big data, real-time apps, and high write throughput (e.g., MongoDB, Cassandra).
+
+3. What are the different types of SQL commands?
+SQL commands are categorized as:
+
+DDL (Data Definition Language): CREATE, ALTER, DROP, TRUNCATE
+DML (Data Manipulation Language): INSERT, UPDATE, DELETE, SELECT
+DCL (Data Control Language): GRANT, REVOKE
+TCL (Transaction Control Language): COMMIT, ROLLBACK, SAVEPOINT
+
+4. Explain the purpose of the SELECT statement.
+SELECT is the most used DML statement. It retrieves data from one or more tables.
+Basic syntax:
+SQLSELECT column1, column2 
+FROM table_name 
+WHERE condition 
+ORDER BY column1;
+You can use * to select all columns, but it's better to specify columns for performance.
+5. What is the difference between WHERE and HAVING clauses?
+
+WHERE: Filters rows before grouping/aggregation. Cannot use aggregate functions.
+HAVING: Filters groups afterGROUP BY and aggregation. Can use aggregate functions.
+
+SQLSELECT department, COUNT(*) as employee_count
+FROM employees
+WHERE salary > 50000                    -- Filters individual rows
+GROUP BY department
+HAVING COUNT(*) > 5;                    -- Filters groups
+6. Define what a JOIN is in SQL and list its types.
+A JOIN combines rows from two or more tables based on a related column.
+Types:
+
+INNER JOIN: Returns only matching rows from both tables.
+LEFT JOIN (LEFT OUTER): All rows from left table + matching from right.
+RIGHT JOIN (RIGHT OUTER): All rows from right table + matching from left.
+FULL JOIN (FULL OUTER): All rows from both tables.
+CROSS JOIN: Cartesian product (every row from first with every row from second).
+
+7. What is a primary key in a database?
+A Primary Key is a column (or set of columns) that uniquely identifies each row in a table. It must be:
+
+Unique
+Not NULL
+Indexed (usually)
+
+A table can have only one primary key.
+8. Explain what a foreign key is and how it is used.
+A Foreign Key is a column (or set of columns) in one table that refers to the Primary Key in another table. It enforces referential integrity.
+SQLCREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+It prevents invalid data and can define cascading actions (ON DELETE CASCADE).
+9. How can you prevent SQL injections?
+Best ways to prevent SQL Injection:
+
+Use parameterized queries / prepared statements (most important).
+Use stored procedures.
+Validate and sanitize all user input.
+Use ORM (Entity Framework, Dapper) with proper parameterization.
+Least privilege principle for database users.
+
+Never concatenate user input directly into SQL strings.
+10. What is normalization? Explain with examples.
+Normalization is the process of organizing data to reduce redundancy and improve data integrity.
+Main normal forms:
+
+1NF: Atomic values, no repeating groups.
+2NF: 1NF + no partial dependency.
+3NF: 2NF + no transitive dependency.
+
+Example: Instead of storing customer name and address in every order row, create a separate Customers table and reference it via CustomerID.
