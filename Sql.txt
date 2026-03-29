@@ -83,3 +83,196 @@ Main normal forms:
 3NF: 2NF + no transitive dependency.
 
 Example: Instead of storing customer name and address in every order row, create a separate Customers table and reference it via CustomerID.
+
+11. What are the different types of JOINs in SQL? Explain with examples.
+SQL supports several types of JOINs to combine data from multiple tables:
+
+INNER JOIN: Returns only the rows that have matching values in both tables (most commonly used).
+
+SQLSELECT e.name, d.department_name 
+FROM employees e
+INNER JOIN departments d ON e.department_id = d.id;
+
+LEFT JOIN (LEFT OUTER JOIN): Returns all rows from the left table and matching rows from the right table. Non-matching rows get NULL.
+
+SQLSELECT e.name, d.department_name 
+FROM employees e
+LEFT JOIN departments d ON e.department_id = d.id;
+
+RIGHT JOIN (RIGHT OUTER JOIN): Opposite of LEFT JOIN — all rows from right table.
+FULL OUTER JOIN: Returns all rows from both tables (matching + non-matching).
+CROSS JOIN: Cartesian product — every row from first table paired with every row from second table.
+
+Tip: Always use table aliases (e, d) for readability.
+12. What is the difference between UNION and UNION ALL?
+
+UNION: Combines results of two or more SELECT statements and removes duplicate rows. It performs sorting internally.
+UNION ALL: Combines results and keeps all duplicates. Much faster because no duplicate removal or sorting.
+
+SQL-- Removes duplicates
+SELECT name FROM employees
+UNION
+SELECT name FROM contractors;
+
+-- Keeps duplicates (preferred for performance)
+SELECT name FROM employees
+UNION ALL
+SELECT name FROM contractors;
+Rule: Use UNION ALL unless you specifically need to remove duplicates.
+13. What is a Subquery? Explain with an example.
+A Subquery (nested query) is a query inside another query. It can be used in SELECT, FROM, WHERE, or HAVING clauses.
+SQL-- Find employees who earn more than the average salary
+SELECT name, salary 
+FROM employees 
+WHERE salary > (SELECT AVG(salary) FROM employees);
+Types:
+
+Scalar Subquery (returns single value)
+Row Subquery (returns one row)
+Table Subquery (returns multiple rows)
+
+Correlated Subquery: Subquery that references columns from the outer query.
+14. What is the difference between DELETE, TRUNCATE, and DROP?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CommandPurposeRolls Back?Resets Identity?Where Clause?SpeedDELETEDelete specific rowsYesNoYesSlowTRUNCATEDelete all rows from tableNo (DDL)YesNoVery FastDROPDelete entire table/structureNo (DDL)N/ANoFast
+SQLDELETE FROM employees WHERE department_id = 5;   -- Specific rows
+TRUNCATE TABLE employees;                        -- All rows, faster
+DROP TABLE employees;                            -- Removes table completely
+15. What are Aggregate Functions? Give examples.
+Aggregate functions perform a calculation on a set of values and return a single value.
+Common Aggregate Functions:
+
+COUNT() – counts rows
+SUM() – total of values
+AVG() – average
+MAX() / MIN() – maximum / minimum value
+
+SQLSELECT 
+    department_id,
+    COUNT(*) AS employee_count,
+    AVG(salary) AS avg_salary,
+    MAX(salary) AS max_salary
+FROM employees
+GROUP BY department_id;
+They are usually used with GROUP BY and can be filtered using HAVING.
+16. What is GROUP BY and how does it work with HAVING?
+GROUP BY groups rows that have the same values in specified columns into summary rows.
+HAVING filters those groups (similar to WHERE, but for aggregated data).
+SQLSELECT department_id, COUNT(*) as emp_count
+FROM employees
+GROUP BY department_id
+HAVING COUNT(*) > 10 
+   AND AVG(salary) > 60000;
+Order of Execution: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY
+17. What is the difference between CHAR and VARCHAR?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureCHAR(n)VARCHAR(n)StorageFixed length (pads with spaces)Variable lengthPerformanceSlightly faster for fixed dataBetter for varying length dataMax LengthUp to 255 characters (in most DBs)Up to 8000 (SQL Server) or moreMemory UsageWastes space if data is shorterSaves space
+Rule: Use CHAR for fixed-length data (e.g., country codes, status flags). Use VARCHAR for most text fields.
+18. What are Indexes in SQL? Why are they important?
+An Index is a database object that improves the speed of data retrieval operations on a table.
+Types:
+
+Clustered Index: Determines physical order of data in table (only one per table, usually on Primary Key).
+Non-Clustered Index: Separate structure pointing to data (multiple allowed).
+Unique Index, Composite Index, Covering Index, Filtered Index.
+
+Pros: Faster SELECT, JOIN, WHERE, ORDER BY.
+Cons: Slower INSERT, UPDATE, DELETE (index needs maintenance).
+Tip: Index columns used frequently in WHERE, JOIN, and ORDER BY clauses.
+19. What is a View in SQL?
+A View is a virtual table based on the result set of a SELECT statement. It does not store data physically (except Materialized Views).
+SQLCREATE VIEW ActiveEmployees AS
+SELECT id, name, department, salary 
+FROM employees 
+WHERE is_active = 1;
+Advantages:
+
+Simplifies complex queries
+Provides security (hide sensitive columns)
+Logical data independence
+
+Note: In SQL Server/PostgreSQL, you can create Materialized Views that store data physically for better performance.
+20. What is a Stored Procedure? Explain its advantages.
+A Stored Procedure is a pre-compiled collection of SQL statements stored in the database.
+SQLCREATE PROCEDURE GetEmployeeByDept
+    @DepartmentID INT
+AS
+BEGIN
+    SELECT name, salary 
+    FROM employees 
+    WHERE department_id = @DepartmentID;
+END
+Advantages:
+
+Better performance (pre-compiled)
+Code reusability
+Security (execute permission without direct table access)
+Reduced network traffic
+Easier maintenance
+
+Disadvantages: Can make debugging harder and may increase vendor lock-in.
