@@ -1,0 +1,114 @@
+1. What is LINQ and why is it used?
+LINQ (Language Integrated Query) is a Microsoft .NET component that adds native querying capabilities to .NET languages (C#, VB.NET). It allows you to query data from various sources (collections, databases, XML, JSON, etc.) using a consistent, SQL-like syntax directly in C#.
+Benefits:
+
+Type-safe queries
+IntelliSense support
+Reduced boilerplate code
+Unified way to query different data sources
+Deferred execution (lazy evaluation)
+
+2. What are the two main syntaxes in LINQ?
+
+Query Syntax (SQL-like):
+
+C#var result = from item in collection
+             where item.Age > 18
+             orderby item.Name
+             select item;
+
+Method Syntax (Fluent / Lambda):
+
+C#var result = collection
+                .Where(item => item.Age > 18)
+                .OrderBy(item => item.Name);
+Both are compiled to the same IL. Most developers prefer Method Syntax for complex queries.
+3. What is the difference between Query Syntax and Method Syntax?
+
+Query Syntax: More readable, SQL-like. Good for joins and complex grouping.
+Method Syntax: More powerful, flexible, and concise. Better for chaining operations.
+
+Recommendation: Use Query Syntax for readability in joins/grouping, and Method Syntax for everything else. You can mix both.
+4. Explain Deferred Execution in LINQ.
+Deferred Execution means the LINQ query is not executed immediately when defined. It executes only when the query is enumerated (e.g., ToList(), ToArray(), foreach, or when using aggregates like Count()).
+C#var query = employees.Where(e => e.Salary > 50000);   // Query is defined, not executed
+
+// Execution happens here
+var result = query.ToList();   // Deferred execution triggers now
+Advantage: You can build queries dynamically and modify them before execution.
+5. What is Immediate Execution in LINQ? Give examples.
+Immediate Execution forces the query to run right away and materializes the result.
+Common methods that cause immediate execution:
+
+ToList(), ToArray(), ToDictionary()
+Count(), Sum(), Average(), Min(), Max()
+First(), Single(), Last()
+Any(), All()
+
+C#var result = employees.Where(e => e.Age > 30).ToList(); // Immediate
+6. What are the main LINQ providers in .NET?
+
+LINQ to Objects — Queries in-memory collections (List<T>, arrays, etc.)
+LINQ to Entities — Queries databases via Entity Framework
+LINQ to XML — Queries XML documents
+LINQ to JSON — Using Newtonsoft.Json or System.Text.Json
+LINQ to SQL — Legacy (replaced by EF)
+PLINQ (Parallel LINQ) — Parallel execution
+
+7. What is the difference between IEnumerable<T> and IQueryable<T>?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureIEnumerable<T>IQueryable<T>Execution LocationIn-memory (client-side)Database / remote sourceExpressionUses delegatesUses expression treesPerformanceExecutes immediately on enumerationBuilds query and executes on providerBest ForIn-memory collectionsDatabase queries (Entity Framework)
+Rule: Use IQueryable<T> when querying a database so filtering happens on the server.
+8. Explain the difference between First(), FirstOrDefault(), Single(), and SingleOrDefault().
+
+First() — Returns first element. Throws exception if no element found.
+FirstOrDefault() — Returns first element or default value (null for reference types).
+Single() — Returns the only element. Throws if more than one or none found.
+SingleOrDefault() — Returns the only element or default. Throws if more than one found.
+
+Best Practice: Prefer FirstOrDefault() and SingleOrDefault() to avoid exceptions.
+9. What is the purpose of the 'let' keyword in LINQ?
+The let keyword allows you to store intermediate results in a query and reuse them.
+C#var result = from e in employees
+             let fullName = e.FirstName + " " + e.LastName
+             where fullName.Contains("Kumar")
+             select new { e.EmployeeID, FullName = fullName };
+It improves readability in complex queries.
+10. What are Anonymous Types in LINQ?
+Anonymous types allow you to create temporary objects without defining a class.
+C#var result = employees.Select(e => new 
+{ 
+    FullName = e.FirstName + " " + e.LastName,
+    Department = e.Department.Name,
+    Salary = e.Salary 
+});
+They are read-only and commonly used for projections in LINQ.
