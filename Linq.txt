@@ -112,3 +112,170 @@ C#var result = employees.Select(e => new
     Salary = e.Salary 
 });
 They are read-only and commonly used for projections in LINQ.
+
+11. What is the purpose of the Select method in LINQ?
+Select is a projection operator. It transforms each element in the source collection into a new form (similar to SELECT in SQL).
+C#// Basic projection
+var names = employees.Select(e => e.Name);
+
+// Project to anonymous type
+var result = employees.Select(e => new 
+{ 
+    FullName = e.FirstName + " " + e.LastName,
+    Age = e.Age,
+    Department = e.Department.Name 
+});
+
+// Index overload
+var indexed = employees.Select((e, index) => new { Index = index, Employee = e });
+Key Point: Select returns a new collection with transformed elements. It does not modify the original collection.
+12. Explain the Where clause in LINQ.
+Where is a filtering operator. It returns elements from the source collection that satisfy a given condition.
+C#// Method Syntax
+var seniors = employees.Where(e => e.Age >= 60);
+
+// Query Syntax
+var seniors2 = from e in employees
+               where e.Age >= 60 && e.Salary > 50000
+               select e;
+You can chain multiple Where clauses — they are combined with AND logic.
+13. What is the difference between Select and SelectMany?
+
+Select → Projects each element to one output element (1-to-1 or 1-to-many in terms of transformation).
+SelectMany → Projects each element to a collection and then flattens the result into a single collection (used for 1-to-many relationships).
+
+C#// SelectMany example - flattening orders from multiple customers
+var allOrders = customers.SelectMany(c => c.Orders);
+
+var allOrderItems = customers.SelectMany(c => c.Orders)
+                             .SelectMany(o => o.OrderItems);
+Common Use: Flattening nested collections (e.g., customer → orders → order items).
+14. How do you perform sorting in LINQ?
+Use OrderBy, OrderByDescending, ThenBy, and ThenByDescending.
+C#// Single column
+var sorted = employees.OrderBy(e => e.Name);
+
+// Multiple columns
+var multiSorted = employees
+                    .OrderBy(e => e.Department.Name)
+                    .ThenByDescending(e => e.Salary)
+                    .ThenBy(e => e.Age);
+In Query Syntax:
+C#var result = from e in employees
+             orderby e.Department.Name, e.Salary descending
+             select e;
+15. Explain GroupBy in LINQ with an example.
+GroupBy groups elements that share a common key.
+C#// Method Syntax
+var grouped = employees
+                .GroupBy(e => e.Department.Name)
+                .Select(g => new 
+                { 
+                    Department = g.Key,
+                    EmployeeCount = g.Count(),
+                    AvgSalary = g.Average(e => e.Salary),
+                    Employees = g.ToList()
+                });
+
+// Query Syntax
+var grouped2 = from e in employees
+               group e by e.Department.Name into g
+               select new 
+               { 
+                   Department = g.Key, 
+                   Count = g.Count() 
+               };
+You can group by multiple keys using anonymous types.
+16. How do you perform Joins in LINQ?
+LINQ supports Inner Join, Group Join, and Left Join.
+C#// Inner Join (Method Syntax)
+var result = employees.Join(departments,
+                e => e.DepartmentID,
+                d => d.ID,
+                (e, d) => new { Employee = e.Name, Department = d.Name });
+
+// Left Join using GroupJoin + SelectMany
+var leftJoin = employees.GroupJoin(departments,
+                e => e.DepartmentID,
+                d => d.ID,
+                (e, deptGroup) => new { e, deptGroup })
+                .SelectMany(
+                    x => x.deptGroup.DefaultIfEmpty(),
+                    (x, d) => new 
+                    { 
+                        Employee = x.e.Name, 
+                        Department = d?.Name ?? "No Department" 
+                    });
+Tip: Use Query Syntax for complex joins as it is more readable.
+17. What is the difference between Any() and All()?
+
+Any() → Returns true if at least one element satisfies the condition.
+All() → Returns true if every element satisfies the condition.
+
+C#bool hasSenior = employees.Any(e => e.Age >= 60);
+bool allAdults = employees.All(e => e.Age >= 18);
+
+bool hasHighEarners = employees.Any(e => e.Salary > 100000);
+Both short-circuit (stop as soon as result is known).
+18. Explain First(), FirstOrDefault(), Single(), and SingleOrDefault().
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MethodReturnsThrows Exception IfFirst()First matching elementNo elements foundFirstOrDefault()First or default valueNever throwsSingle()The only matching elementNone or more than one foundSingleOrDefault()Only element or defaultMore than one found
+Best Practice:
+
+Use FirstOrDefault() when you expect 0 or 1 result.
+Use SingleOrDefault() when business logic guarantees exactly one result.
+
+19. What is Take() and Skip() used for?
+These are paging operators.
+
+Take(n) → Returns first n elements.
+Skip(n) → Skips first n elements.
+
+C#// Paging: Page 3 with 10 records per page
+int pageNumber = 3;
+int pageSize = 10;
+
+var pagedData = employees
+                    .OrderBy(e => e.Name)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+Very useful for implementing pagination in web applications.
+20. What is Concat() and Union() in LINQ?
+
+Concat() → Combines two sequences keeping duplicates.
+Union() → Combines two sequences and removes duplicates (like SQL UNION).
+
+C#var combined = list1.Concat(list2);           // Keeps duplicates
+
+var unique = list1.Union(list2);              // Removes duplicates
+Union() uses Equals() and GetHashCode() for duplicate detection.
