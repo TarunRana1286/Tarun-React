@@ -1116,6 +1116,138 @@ var csv = employees
 var json = JsonSerializer.Serialize(employees
     .Select(e => new { e.Name, e.Salary }));
 
+    91. What is the difference between IEnumerable<T>, ICollection<T>, and IList<T> when used with LINQ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+InterfaceCan Add/Remove?Index Access?LINQ Performance ImpactIEnumerable<T>NoNoMost flexible, deferred executionICollection<T>YesNoGood for Count (O(1))IList<T>YesYesBest for indexing and random access
+Best Practice:
+
+Declare as IEnumerable<T> when you only need to iterate.
+Use IList<T> when you need index-based access or frequent modifications.
+
+92. Can you mix Query Syntax and Method Syntax in the same LINQ query?
+Yes, you can mix both. This is actually very common and often recommended.
+C#var result = (from e in employees
+              where e.Age > 30
+              select e)
+             .OrderBy(e => e.Name)           // Method Syntax
+             .Take(10);
+This gives you the readability of Query Syntax for complex joins/grouping and the power of Method Syntax for chaining.
+93. What happens when you call ToList() multiple times on the same LINQ query?
+Each call to ToList() re-executes the entire query.
+C#var query = employees.Where(e => e.Salary > 50000);   // Deferred
+
+var list1 = query.ToList();   // Executes query
+var list2 = query.ToList();   // Executes query AGAIN
+Best Practice: Materialize once and reuse the list if possible to avoid multiple database roundtrips.
+94. How do you write a LINQ query to get the Top N records per group?
+This is a classic advanced question:
+C#var top2PerDept = employees
+    .GroupBy(e => e.DepartmentID)
+    .SelectMany(g => g
+        .OrderByDescending(e => e.Salary)
+        .Take(2));                    // Top 2 highest paid per department
+Alternative using Select + OrderBy + Take:
+C#var top2 = from e in employees
+           group e by e.DepartmentID into g
+           from top in g.OrderByDescending(x => x.Salary).Take(2)
+           select top;
+95. What is LINQ to XML and how is it different from traditional XML handling?
+LINQ to XML (System.Xml.Linq) allows you to query and manipulate XML using LINQ syntax.
+C#XDocument doc = XDocument.Load("data.xml");
+
+var result = from e in doc.Descendants("Employee")
+             where (int)e.Element("Salary") > 70000
+             select new 
+             { 
+                 Name = e.Element("Name").Value,
+                 Salary = (decimal)e.Element("Salary")
+             };
+Much cleaner and more powerful than the old XmlDocument / XPath approach.
+96. How do you handle exceptions inside a LINQ query?
+You cannot use try-catch directly inside a LINQ expression. Solutions:
+C#// Option 1: Wrap in a method
+var result = employees.Select(e => SafeProcess(e));
+
+Employee SafeProcess(Employee e)
+{
+    try
+    {
+        return ProcessEmployee(e);
+    }
+    catch (Exception ex)
+    {
+        // Log and return default or null
+        return null;
+    }
+}
+Modern Approach: Use libraries like Polly or handle exceptions before materializing the query.
+97. What is Parallel LINQ (PLINQ) and when should you use it?
+PLINQ (AsParallel()) enables parallel execution of LINQ queries using multiple threads.
+C#var result = data.AsParallel()
+                 .Where(x => ExpensiveCalculation(x))
+                 .OrderBy(x => x)
+                 .ToList();
+When to use:
+
+CPU-bound operations on large collections.
+When you have multiple CPU cores available.
+
+Caution: Not suitable for I/O-bound work or when order matters (unless using AsOrdered()).
+98. How do you use LINQ with async streams (IAsyncEnumerable<T>)?
+With C# 8+ and System.Linq.Async:
+C#await foreach (var employee in employees
+    .Where(e => e.Salary > 50000)
+    .ToAsyncEnumerable())
+{
+    await ProcessEmployeeAsync(employee);
+}
+This allows LINQ-style operations on asynchronous streaming data.
+99. What are some common performance pitfalls with LINQ?
+Common pitfalls:
+
+Using AsEnumerable() too early on database queries.
+Calling ToList() inside a loop.
+Using non-translatable methods inside Where (e.g., custom C# methods).
+Not using AsNoTracking() in EF Core for read-only queries.
+Materializing large result sets into memory unnecessarily.
+Using Count() on IEnumerable instead of ICollection.
+
+100. What are the most important LINQ features added in recent C# versions?
+
+C# 8+: IAsyncEnumerable<T> support
+C# 9+: Records work very well with LINQ projections
+C# 10+: Global using directives and top-level statements make LINQ code cleaner
+C# 11+: Raw string literals (great for dynamic SQL in LINQ queries)
+EF Core improvements: Better translation of complex LINQ expressions
+
 
 
 
