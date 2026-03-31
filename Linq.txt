@@ -914,6 +914,108 @@ var result = employees
                 .Select(e => new { e.Name, e.Salary });
 For dynamic JSON, use JsonDocument + LINQ on JsonElement.
 
+71. What is the difference between Select and SelectMany? (Deep Dive)
+This is one of the most important LINQ questions asked in interviews.
+
+Select → Transforms each element into one output element (1-to-1 projection).
+SelectMany → Transforms each element into a collection, then flattens all those collections into a single sequence (handles 1-to-many relationships).
+
+C#// Select - Returns collection of collections
+var selectResult = customers.Select(c => c.Orders);           // IEnumerable<IEnumerable<Order>>
+
+// SelectMany - Flattens into single collection
+var selectManyResult = customers.SelectMany(c => c.Orders);   // IEnumerable<Order>
+Real-world Use: Flattening nested structures like Customer → Orders → OrderItems.
+72. How can you implement a Left Outer Join using LINQ Method Syntax?
+LINQ does not have a built-in LEFT JOIN. You achieve it using GroupJoin + SelectMany + DefaultIfEmpty():
+C#var leftJoin = employees.GroupJoin(departments,
+    e => e.DepartmentID,
+    d => d.ID,
+    (employee, deptGroup) => new { employee, deptGroup })
+    .SelectMany(
+        x => x.deptGroup.DefaultIfEmpty(),
+        (x, department) => new 
+        { 
+            EmployeeName = x.employee.Name,
+            DepartmentName = department?.Name ?? "No Department"
+        });
+This is a classic interview question. Make sure you can explain every part.
+73. What is the into keyword in LINQ Query Syntax?
+The into keyword is used to continue a query after a group by or join (it creates a temporary identifier for the result).
+C#var result = from e in employees
+             join d in departments on e.DepartmentID equals d.ID into empDept
+             from ed in empDept.DefaultIfEmpty()   // Left Join
+             select new { e.Name, Department = ed?.Name ?? "None" };
+It is also used after group by to continue the query.
+74. What is Deferred Execution vs Immediate Execution? Give examples of both.
+
+Deferred Execution: The query is not executed when defined. It runs only when enumerated.C#var query = employees.Where(e => e.Salary > 50000);   // Not executed yet
+var result = query.ToList();                          // Executes here
+Immediate Execution: The query runs immediately.C#var count = employees.Count(e => e.Age > 30);         // Immediate
+var list = employees.ToList();                        // Immediate
+
+Most LINQ operators are deferred except aggregators (Count, Sum, Average, etc.) and materialization methods (ToList, ToArray, ToDictionary).
+75. Can you use LINQ with async/await? How?
+Yes. In modern .NET, use Entity Framework Core async methods:
+C#var result = await dbContext.Employees
+                            .Where(e => e.Salary > 60000)
+                            .OrderBy(e => e.Name)
+                            .ToListAsync();        // Async version
+For custom async operations with LINQ to Objects, you can use Task.WhenAll or IAsyncEnumerable<T> (C# 8+).
+76. What is IAsyncEnumerable<T> and how does it relate to LINQ?
+IAsyncEnumerable<T> is the async version of IEnumerable<T>. It allows streaming data asynchronously.
+C#public async IAsyncEnumerable<Employee> GetEmployeesAsync()
+{
+    await foreach (var employee in dbContext.Employees.AsAsyncEnumerable())
+    {
+        // Process asynchronously
+        await Task.Delay(10);
+        yield return employee;
+    }
+}
+You can use LINQ-like methods with System.Linq.Async package for IAsyncEnumerable.
+77. How do you write a recursive query using LINQ?
+LINQ does not support recursion natively. Common approaches:
+
+Recursive Method:
+
+C#public IEnumerable<Employee> GetHierarchy(Employee manager)
+{
+    yield return manager;
+    foreach (var child in employees.Where(e => e.ManagerId == manager.Id))
+        foreach (var descendant in GetHierarchy(child))
+            yield return descendant;
+}
+
+For database: Use Recursive CTE in SQL and map via EF Core.
+
+78. What is the OfType<T>() operator used for?
+OfType<T>() filters a collection and returns only elements that can be cast to the specified type T.
+C#object[] mixed = { 1, "hello", 2.5, "world", true, 42 };
+
+var strings = mixed.OfType<string>();   // "hello", "world"
+var numbers = mixed.OfType<int>();      // 1, 42
+It is very useful when working with non-generic collections (ArrayList, object[], etc.).
+79. Explain the Cast<T>() operator.
+Cast<T>() attempts to cast every element in the sequence to type T. It throws InvalidCastException if any element cannot be cast.
+C#object[] objects = { 1, 2, 3 };
+var numbers = objects.Cast<int>();     // Works
+
+// If one element fails → exception
+Difference from OfType<T>(): Cast is strict, OfType is safe (filters out incompatible elements).
+80. What are some common LINQ anti-patterns / mistakes to avoid?
+Common mistakes:
+
+Calling ToList() too early → loses deferred execution benefits.
+Using AsEnumerable() unnecessarily on database queries.
+Using complex methods inside Where that cannot be translated to SQL.
+Not using AsNoTracking() for read-only EF queries.
+Ignoring query execution plans.
+Using foreach with Add instead of Select + ToList().
+Overusing anonymous types in public APIs.
+
+Best Practice: Keep queries as IQueryable<T> as long as possible.
+
 
 
 
