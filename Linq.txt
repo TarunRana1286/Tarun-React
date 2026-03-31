@@ -536,6 +536,138 @@ ElementAtOrDefault(index) → Returns the element at the index or default value 
 C#var thirdEmployee = employees.ElementAtOrDefault(2);   // Safer
 These are useful when you need random access by index in a LINQ query result.
 
+41. What is the difference between ToList() and ToArray() in LINQ?
+Both cause immediate execution of the query, but they differ in the returned collection type:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureToList()ToArray()Return TypeList<T>T[]Memory AllocationDynamic (can grow)Fixed sizePerformanceSlightly slower due to resizingFaster (single allocation)When to UseWhen you may need to add/remove items laterWhen the size is fixed and you need an array
+Recommendation: Use ToList() in most cases unless you specifically need an array for performance or API compatibility.
+42. What are the Count() vs LongCount() vs Count(property)?
+
+Count() → Returns int (32-bit). Can throw OverflowException for very large collections.
+LongCount() → Returns long (64-bit). Safer for extremely large collections.
+Count(predicate) → Counts only elements that match the condition.
+
+C#int total = employees.Count();
+long bigCount = employees.LongCount();
+
+int highEarners = employees.Count(e => e.Salary > 100000);
+Best Practice: Use LongCount() when dealing with potentially very large datasets.
+43. What is the Sum(), Average(), Min(), and Max() in LINQ?
+These are aggregate operators:
+C#var totalSalary = employees.Sum(e => e.Salary);
+var avgSalary   = employees.Average(e => e.Salary);
+var maxSalary   = employees.Max(e => e.Salary);
+var minSalary   = employees.Min(e => e.Salary);
+They work with numeric types and can be used with a selector function. They cause immediate execution.
+44. How do you handle NULL values in LINQ queries?
+Best practices for handling NULLs:
+C#// Safe navigation with null-conditional (C# 6+)
+var names = employees
+            .Where(e => e?.Department?.Name == "IT")
+            .Select(e => e?.Name);
+
+// Using null-coalescing
+var result = employees.Select(e => new 
+{ 
+    Name = e.Name ?? "Unknown",
+    Dept = e.Department?.Name ?? "No Department"
+});
+
+// Filter out nulls
+var nonNull = employees.Where(e => e != null);
+Always prefer null-conditional operators (?.) and null-coalescing (??) when working with LINQ.
+45. What is OfType<T>() in LINQ?
+OfType<T>() filters the collection to return only elements of the specified type (useful with non-generic collections or mixed-type sequences).
+C#object[] mixed = { 1, "hello", 2.5, "world", 3 };
+
+var onlyStrings = mixed.OfType<string>();     // Returns "hello", "world"
+var onlyInts    = mixed.OfType<int>();        // Returns 1, 3
+It is commonly used when working with legacy ArrayList or mixed collections.
+46. Explain Cast<T>() vs OfType<T>()
+
+Cast<T>() → Attempts to cast every element to type T. Throws InvalidCastException if any element cannot be cast.
+OfType<T>() → Returns only elements that can be cast to type T. Ignores others (safer).
+
+Recommendation: Prefer OfType<T>() unless you are sure all elements are of the target type.
+47. What is SequenceEqual() in LINQ?
+SequenceEqual() checks whether two sequences contain the same elements in the same order.
+C#bool areEqual = list1.SequenceEqual(list2);
+
+// With custom comparer
+bool areEqualCustom = list1.SequenceEqual(list2, new EmployeeComparer());
+It uses Equals() by default. Useful for unit testing and comparing collections.
+48. How can you implement Paging efficiently in LINQ?
+Efficient paging using Skip() and Take():
+C#public async Task<PagedResult<Employee>> GetEmployeesAsync(int pageNumber, int pageSize)
+{
+    var totalCount = await dbContext.Employees.CountAsync();
+
+    var items = await dbContext.Employees
+                               .OrderBy(e => e.Name)
+                               .Skip((pageNumber - 1) * pageSize)
+                               .Take(pageSize)
+                               .ToListAsync();
+
+    return new PagedResult<Employee>
+    {
+        Items = items,
+        TotalCount = totalCount,
+        PageNumber = pageNumber,
+        PageSize = pageSize
+    };
+}
+Important: Always apply OrderBy before Skip/Take.
+49. What is the DefaultIfEmpty() operator?
+DefaultIfEmpty() returns the elements of the sequence, or a default value if the sequence is empty.
+It is primarily used to implement Left Joins in LINQ.
+C#var result = departments
+                .Where(d => d.ID == 999)
+                .DefaultIfEmpty(new Department { Name = "Unknown Department" });
+50. How do you combine multiple conditions in LINQ Where clause?
+You can combine conditions using logical operators:
+C#// Method Syntax
+var result = employees.Where(e => 
+    e.Age > 30 && 
+    e.Salary > 60000 && 
+    e.Department.Name == "IT");
+
+// Query Syntax
+var result2 = from e in employees
+              where e.Age > 30 
+                 && e.Salary > 60000 
+                 && e.Department.Name == "IT"
+              select e;
+You can also break complex conditions into separate Where clauses (they are ANDed together).
+
 
 
 
