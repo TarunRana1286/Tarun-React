@@ -1016,6 +1016,106 @@ Overusing anonymous types in public APIs.
 
 Best Practice: Keep queries as IQueryable<T> as long as possible.
 
+81. What is the Join vs GroupJoin in LINQ?
+
+Join → Performs an Inner Join. Returns only matching pairs from both sequences.
+GroupJoin → Performs a Group Left Join. It groups all matching elements from the right sequence for each left element.
+
+C#// Inner Join
+var innerJoin = employees.Join(departments, 
+                    e => e.DepartmentID, 
+                    d => d.ID, 
+                    (e, d) => new { e.Name, d.DepartmentName });
+
+// GroupJoin (basis for Left Join)
+var groupJoin = employees.GroupJoin(departments,
+                    e => e.DepartmentID,
+                    d => d.ID,
+                    (e, deptGroup) => new { Employee = e, Departments = deptGroup });
+GroupJoin is the key building block for implementing Left Outer Joins in LINQ.
+82. How can you implement a Full Outer Join in LINQ?
+LINQ does not have a direct FULL OUTER JOIN. You can simulate it by combining Left Join + Right Join - Inner Join:
+C#var leftJoin = /* Left Join logic as shown earlier */;
+
+var rightJoin = departments.GroupJoin(employees,
+    d => d.ID,
+    e => e.DepartmentID,
+    (d, empGroup) => new { Department = d, Employees = empGroup })
+    .SelectMany(x => x.Employees.DefaultIfEmpty(),
+        (x, e) => new { EmployeeName = e?.Name, DepartmentName = x.Department.Name });
+
+var fullOuterJoin = leftJoin.Union(rightJoin);
+This is an advanced question — interviewers love to see if you can think creatively.
+83. What is Queryable vs Enumerable extension methods?
+
+Enumerable → Extension methods for IEnumerable<T> (LINQ to Objects). Uses delegates.
+Queryable → Extension methods for IQueryable<T> (LINQ to Entities). Uses expression trees.
+
+When you write .Where(), the compiler chooses the correct one based on the type (IEnumerable or IQueryable).
+84. How do you dynamically build a LINQ query at runtime?
+Use predicate builders or build expressions dynamically.
+Popular approach using PredicateBuilder (from LinqKit library) or manual expression trees:
+C#var predicate = PredicateBuilder.New<Employee>(true);
+
+if (!string.IsNullOrEmpty(searchTerm))
+    predicate = predicate.And(e => e.Name.Contains(searchTerm));
+
+if (minSalary.HasValue)
+    predicate = predicate.And(e => e.Salary >= minSalary.Value);
+
+var result = dbContext.Employees.Where(predicate).ToList();
+This is a very common real-world requirement.
+85. What is Expression<Func<T>> and why is it important in LINQ?
+Expression<Func<T>> represents code as data (expression tree) instead of executable code (delegate).
+
+Func<T> → Compiled delegate (used by IEnumerable).
+Expression<Func<T>> → Expression tree (used by IQueryable so it can be translated to SQL).
+
+This is why EF Core can convert your LINQ query into SQL.
+86. How do you use LINQ with Dictionary<TKey, TValue>?
+You can query dictionaries directly:
+C#var highSalaryDepts = departmentSalary
+    .Where(kvp => kvp.Value > 80000)
+    .Select(kvp => new { Department = kvp.Key, TotalSalary = kvp.Value })
+    .OrderByDescending(x => x.TotalSalary);
+You can also use ToDictionary() to convert query results into a dictionary.
+87. What is the Range() and Repeat() method in LINQ?
+
+Range(start, count) → Generates a sequence of integers.
+Repeat(element, count) → Repeats a value a specified number of times.
+
+C#var numbers = Enumerable.Range(1, 10);           // 1 to 10
+var repeated = Enumerable.Repeat("Hello", 5);    // "Hello" five times
+Useful for generating test data or sequences.
+88. How do you perform a Cross Join in LINQ?
+A Cross Join returns the Cartesian product (every combination of rows).
+C#// Method Syntax
+var crossJoin = employees.SelectMany(e => departments,
+    (e, d) => new { Employee = e.Name, Department = d.Name });
+
+// Query Syntax
+var crossJoin2 = from e in employees
+                 from d in departments
+                 select new { e.Name, d.DepartmentName };
+Use with caution — it can produce very large result sets.
+89. What is the DefaultIfEmpty() operator and where is it mainly used?
+DefaultIfEmpty() returns the original sequence, or a default value if the sequence is empty.
+It is mainly used to implement Left Joins in LINQ (combined with GroupJoin).
+C#var result = departments
+                .Where(d => d.ID == 999)
+                .DefaultIfEmpty(new Department { Name = "Unknown" });
+90. How do you use LINQ to generate CSV or JSON output?
+C#// Generate CSV
+var csv = employees
+    .Select(e => $"{e.Id},{e.Name},{e.Salary}")
+    .Aggregate(new StringBuilder(), 
+        (sb, line) => sb.AppendLine(line))
+    .ToString();
+
+// Generate JSON (with System.Text.Json)
+var json = JsonSerializer.Serialize(employees
+    .Select(e => new { e.Name, e.Salary }));
+
 
 
 
