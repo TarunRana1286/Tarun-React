@@ -798,6 +798,122 @@ Use foreach loop to inspect results step by step.
 
 Pro Tip: Never debug a huge chained LINQ query in one go — split it.
 
+61. What is the Reverse() operator in LINQ?
+Reverse() simply reverses the order of elements in a sequence.
+C#var reversed = employees
+                .OrderBy(e => e.Salary)
+                .Reverse();        // Highest salary first
+Note: It is usually combined with OrderBy/OrderByDescending. It causes immediate execution when enumerated.
+62. How does Distinct() work with custom objects?
+By default, Distinct() uses the type’s Equals() and GetHashCode() methods. For custom objects, you must override these or provide a custom IEqualityComparer<T>.
+C#public class EmployeeNameComparer : IEqualityComparer<Employee>
+{
+    public bool Equals(Employee x, Employee y) => x?.Name == y?.Name;
+    public int GetHashCode(Employee obj) => obj.Name?.GetHashCode() ?? 0;
+}
+
+// Usage
+var uniqueByName = employees.Distinct(new EmployeeNameComparer());
+This is a common interview follow-up question.
+63. What is the difference between Concat() and Union()?
+
+Concat() → Combines two sequences as-is, keeping duplicates.
+Union() → Combines two sequences and removes duplicates (uses Equals + GetHashCode).
+
+C#var all = listA.Concat(listB);      // Keeps duplicates
+var unique = listA.Union(listB);    // Removes duplicates
+Rule: Use Concat() when you want to preserve duplicates; use Union() when you want unique elements.
+64. Explain Except() and Intersect() operators.
+
+Except() → Returns elements from the first sequence that are not in the second sequence.
+Intersect() → Returns elements that are present in both sequences.
+
+C#var onlyInA = listA.Except(listB);
+var common   = listA.Intersect(listB);
+Both support custom IEqualityComparer<T> for complex types.
+65. What are Extension Methods in the context of LINQ?
+All standard LINQ operators (Where, Select, OrderBy, etc.) are implemented as Extension Methods on IEnumerable<T> and IQueryable<T>.
+C#public static class MyLinqExtensions
+{
+    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> source)
+    {
+        return source.Where(x => x != null);
+    }
+}
+
+// Usage
+var cleanList = employees.WhereNotNull();
+This is how you can create your own reusable LINQ methods.
+66. Can LINQ perform recursive queries? How?
+LINQ itself does not support direct recursion, but you can achieve recursive behavior using a recursive method or CTEs (in SQL via EF).
+Example with a recursive method:
+C#public IEnumerable<Employee> GetAllSubordinates(Employee manager)
+{
+    var direct = employees.Where(e => e.ManagerId == manager.Id);
+    return direct.Concat(direct.SelectMany(e => GetAllSubordinates(e)));
+}
+For database-level recursion, use Recursive CTEs in SQL and map via Entity Framework.
+67. What is the difference between ToDictionary() and ToLookup()?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureToDictionary()ToLookup()Key UniquenessKeys must be uniqueAllows duplicate keysReturn TypeDictionary<TKey, TValue>ILookup<TKey, TValue>Accessdict[key] returns single valuelookup[key] returns IEnumerable<T>
+C#var dict = employees.ToDictionary(e => e.Id, e => e.Name);
+var lookup = employees.ToLookup(e => e.DepartmentID);   // Multiple employees per department
+68. When would you prefer ToLookup() over ToDictionary()?
+Use ToLookup() when a key can map to multiple values (one-to-many relationship).
+C#var employeesByDept = employees.ToLookup(e => e.DepartmentID);
+
+foreach (var group in employeesByDept)
+{
+    Console.WriteLine($"Department {group.Key} has {group.Count()} employees");
+}
+ToLookup() is essentially a multi-map.
+69. What is LINQ to XML?
+LINQ to XML provides a LINQ-enabled API for working with XML documents using the System.Xml.Linq namespace.
+C#XDocument doc = XDocument.Load("employees.xml");
+
+var highEarners = from e in doc.Descendants("Employee")
+                  where (decimal)e.Element("Salary") > 80000
+                  select new 
+                  { 
+                      Name = e.Element("Name").Value,
+                      Salary = (decimal)e.Element("Salary")
+                  };
+It is much cleaner than the older XmlDocument approach.
+70. How do you use LINQ with JSON data?
+You can use LINQ after deserializing JSON into objects or by using JObject / JArray from Newtonsoft.Json or System.Text.Json.
+Example with System.Text.Json:
+C#var employees = JsonSerializer.Deserialize<List<Employee>>(jsonString);
+
+var result = employees
+                .Where(e => e.Salary > 70000)
+                .OrderBy(e => e.Name)
+                .Select(e => new { e.Name, e.Salary });
+For dynamic JSON, use JsonDocument + LINQ on JsonElement.
+
 
 
 
