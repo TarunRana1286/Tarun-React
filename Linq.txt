@@ -279,3 +279,161 @@ C#var combined = list1.Concat(list2);           // Keeps duplicates
 
 var unique = list1.Union(list2);              // Removes duplicates
 Union() uses Equals() and GetHashCode() for duplicate detection.
+
+21. What is the Aggregate operator in LINQ? Explain with example.
+Aggregate is a reduction operator that applies an accumulator function over a sequence and returns a single value.
+C#// Simple sum using Aggregate
+var sum = numbers.Aggregate((acc, x) => acc + x);
+
+// With seed value
+var totalSalary = employees.Aggregate(0m, (acc, e) => acc + e.Salary);
+
+// Building a string
+var csv = employees.Aggregate(new StringBuilder(),
+    (sb, e) => sb.Append(e.Name).Append(", "),
+    sb => sb.ToString().TrimEnd(',', ' '));
+Common Uses: Custom sums, string concatenation, finding max/min with conditions, building complex objects.
+22. What is the Zip operator in LINQ?
+Zip combines two sequences element-by-element using a result selector function. It stops when the shorter sequence ends.
+C#var numbers = new[] { 1, 2, 3, 4 };
+var letters = new[] { "A", "B", "C" };
+
+var result = numbers.Zip(letters, (num, letter) => $"{num}-{letter}");
+// Output: "1-A", "2-B", "3-C"
+Use Cases: Pairing data from two sources, merging parallel collections, creating key-value pairs.
+23. Explain Distinct() in LINQ.
+Distinct() returns unique elements from a sequence by removing duplicates.
+C#// Simple distinct
+var uniqueAges = employees.Select(e => e.Age).Distinct();
+
+// Distinct with custom equality (using IEqualityComparer)
+var uniqueEmployees = employees.Distinct(new EmployeeNameComparer());
+By default, it uses the type’s Equals() and GetHashCode(). For complex types, implement IEqualityComparer<T>.
+24. What are Quantifier Operators in LINQ?
+Quantifier operators return a boolean value based on whether some or all elements satisfy a condition:
+
+Any() – Returns true if at least one element matches
+All() – Returns true if every element matches
+Contains() – Checks if sequence contains a specific element
+
+C#bool hasHighEarner = employees.Any(e => e.Salary > 200000);
+bool allAdults = employees.All(e => e.Age >= 18);
+bool hasJohn = employees.Any(e => e.Name == "John");
+These operators short-circuit for better performance.
+25. What is the difference between ToList() and ToArray()?
+Both cause immediate execution and materialize the query result.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureToList()ToArray()Return TypeList<T>T[]PerformanceSlightly slower (dynamic resizing)Faster (fixed size)MemoryCan grow dynamicallyFixed size after creationCommon UseWhen you need Add/Remove laterWhen collection size is known/fixed
+Recommendation: Use ToList() in most cases unless you specifically need an array.
+26. How do you perform Left Join in LINQ?
+LINQ does not have a direct LEFT JOIN keyword. You achieve it using GroupJoin + SelectMany + DefaultIfEmpty().
+C#var leftJoin = employees.GroupJoin(departments,
+    e => e.DepartmentID,
+    d => d.ID,
+    (employee, deptGroup) => new { employee, deptGroup })
+    .SelectMany(
+        x => x.deptGroup.DefaultIfEmpty(),
+        (x, department) => new 
+        { 
+            EmployeeName = x.employee.Name,
+            DepartmentName = department?.Name ?? "No Department"
+        });
+This is one of the most frequently asked LINQ questions in interviews.
+27. What is DefaultIfEmpty() used for?
+DefaultIfEmpty() returns the elements of the sequence, or a default value if the sequence is empty.
+It is mainly used to implement Left Joins in LINQ (as shown above).
+C#var result = departments
+                .Where(d => d.ID == 999)
+                .DefaultIfEmpty(new Department { Name = "Unknown" });
+28. Explain Union, Intersect, and Except in LINQ.
+These are Set Operators:
+
+Union → Combines two sequences and removes duplicates (like SQL UNION).
+Intersect → Returns elements that appear in both sequences.
+Except → Returns elements from first sequence that are not in the second sequence.
+
+C#var union = listA.Union(listB);
+var common = listA.Intersect(listB);
+var onlyInA = listA.Except(listB);
+All three use Equals() and GetHashCode() for comparison.
+29. What is PLINQ? When should you use it?
+PLINQ (Parallel LINQ) is a parallel implementation of LINQ to Objects. It automatically partitions the data and executes the query on multiple threads.
+C#var result = source.AsParallel()
+                   .Where(x => x.Age > 30)
+                   .OrderBy(x => x.Name)
+                   .ToList();
+When to use PLINQ:
+
+CPU-bound operations on large collections
+When you have multiple cores available
+
+Caution: Not suitable for I/O-bound work or when order matters (unless you use AsOrdered()).
+30. How does LINQ to SQL differ from LINQ to Entities (Entity Framework)?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureLINQ to SQLLINQ to Entities (EF)ProviderOnly SQL ServerMultiple databases (SQL, Oracle, MySQL)Mapping1:1 with database tablesSupports conceptual model (EDM)Current StatusLegacy / DeprecatedActively developed (EF Core)PerformanceGoodBetter with EF CoreFeaturesBasicAdvanced (inheritance, complex types)
+Modern Recommendation: Use Entity Framework Core (LINQ to Entities) for new projects.
