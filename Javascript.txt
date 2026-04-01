@@ -1083,3 +1083,148 @@ Service Workers are a core part of Progressive Web Apps (PWAs).
 
 FeaturelocalStoragesessionStorageIndexedDBStorage TypeKey-Value (string only)Key-Value (string only)NoSQL database (structured data)Size Limit~5MB~5MBMuch larger (hundreds of MB)PersistenceUntil manually clearedUntil tab/session closedPersistentData TypeOnly stringsOnly stringsAny JavaScript type (objects, blobs)Use CaseUser preferencesTemporary form dataComplex offline apps, large datasets
 Rule: Use localStorage/sessionStorage for simple data. Use IndexedDB for complex or large offline data.
+
+61. What is the difference between event.preventDefault() and event.stopPropagation()?
+
+event.preventDefault() → Prevents the default behavior of the event (e.g., form submission, link navigation, checkbox toggle).
+event.stopPropagation() → Stops the event from bubbling (or capturing) to parent elements.
+
+JavaScriptform.addEventListener('submit', (e) => {
+    e.preventDefault();        // Stops form from submitting
+    // Custom logic here
+});
+
+child.addEventListener('click', (e) => {
+    e.stopPropagation();       // Prevents parent click handlers from firing
+});
+You can use both together when needed.
+62. What is Event Delegation and why is it useful?
+Event Delegation is a technique where you attach a single event listener to a parent element instead of attaching listeners to many child elements.
+JavaScriptdocument.getElementById('todo-list').addEventListener('click', (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+        deleteTodo(e.target.dataset.id);
+    }
+});
+Advantages:
+
+Better performance (fewer event listeners)
+Works with dynamically added elements
+Cleaner code
+
+This is a very common pattern in modern JavaScript applications.
+63. What is the difference between e.target and e.currentTarget?
+
+e.target → The element that actually triggered the event (the deepest element).
+e.currentTarget → The element to which the event listener is attached.
+
+JavaScriptparent.addEventListener('click', (e) => {
+    console.log(e.target);        // The actual clicked child
+    console.log(e.currentTarget); // The parent element
+});
+64. What is the navigator object?
+The navigator object contains information about the browser and the user's system.
+JavaScriptconsole.log(navigator.userAgent);
+console.log(navigator.language);
+console.log(navigator.onLine);
+
+// Geolocation
+navigator.geolocation.getCurrentPosition(position => {
+    console.log(position.coords.latitude);
+});
+Common uses: Feature detection, browser detection (carefully), and accessing device capabilities.
+65. What is the history API?
+The history API allows you to manipulate the browser’s session history.
+JavaScript// Navigate
+history.back();
+history.forward();
+history.go(-2);
+
+// Push new state (without reloading)
+history.pushState({ page: 2 }, 'Title', '/page2');
+
+// Replace current state
+history.replaceState({ page: 1 }, 'Title', '/page1');
+
+// Listen for changes
+window.addEventListener('popstate', (event) => {
+    console.log('Navigation changed', event.state);
+});
+Heavily used in Single Page Applications (SPAs) for routing.
+66. What is the difference between pushState and replaceState?
+
+pushState → Adds a new entry to the browser history (user can go back).
+replaceState → Replaces the current history entry (user cannot go back to previous state).
+
+JavaScripthistory.pushState(state, title, url);     // New history entry
+history.replaceState(state, title, url);  // Replaces current entry
+replaceState is useful when you want to update the URL without creating a new history entry (e.g., after form submission).
+67. What are Web Components?
+Web Components are a set of web platform APIs that allow you to create reusable custom elements.
+Core Technologies:
+
+Custom Elements – Define your own HTML tags
+Shadow DOM – Encapsulated DOM and styles
+HTML Templates – Reusable markup templates
+
+JavaScriptclass MyButton extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `<button>Click me</button>`;
+    }
+}
+
+customElements.define('my-button', MyButton);
+68. What is Shadow DOM and why is it useful?
+Shadow DOM provides encapsulation for Web Components by creating a separate DOM tree that is not affected by the main document's styles or scripts.
+JavaScriptconst shadow = this.attachShadow({ mode: 'open' });
+shadow.innerHTML = `
+    <style>
+        button { background: red; }   /* Only affects this component */
+    </style>
+    <button>Click</button>
+`;
+Benefits: Style isolation, DOM encapsulation, prevents CSS leakage.
+69. What is the difference between innerHTML, textContent, and innerText?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PropertyWhat it doesSecurity RiskPerformanceinnerHTMLParses HTML string and creates elementsHigh (XSS)SlowertextContentSets raw text (no HTML parsing)SafeFastinnerTextSets visible text (respects CSS)SafeSlower than textContent
+Best Practice: Use textContent for plain text. Use innerHTML only when you need to render actual HTML (and sanitize input).
+70. What is the Intersection Observer API?
+The Intersection Observer API lets you asynchronously observe changes in the intersection of a target element with an ancestor element or with the viewport.
+JavaScriptconst observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            console.log('Element is now visible');
+            // Lazy load images, infinite scroll, etc.
+        }
+    });
+});
+
+observer.observe(document.getElementById('lazy-image'));
+Common Use Cases: Lazy loading, infinite scrolling, animations on scroll, ad impression tracking.
