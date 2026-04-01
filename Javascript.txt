@@ -861,3 +861,225 @@ Use Cases:
 Storing private data associated with objects
 Memory-sensitive caching
 Avoiding memory leaks in long-running applications
+51. What is the difference between Set and Map in JavaScript?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureSetMapPurposeStore unique valuesStore key-value pairsKey TypeValues only (no keys)Any value as key (including objects)DuplicatesAutomatically removedAllowed (keys are unique)OrderInsertion orderInsertion orderSize Propertysizesize
+JavaScriptconst set = new Set([1, 2, 2, 3]);           // {1, 2, 3}
+const map = new Map();
+map.set({id:1}, "Tarun");
+map.set("name", "Rahul");
+Use Set for unique values. Use Map when you need object keys or key-value pairs.
+52. What is the difference between WeakMap and Map?
+
+Map → Keys can be any value. Strong references (keys are not garbage collected).
+WeakMap → Keys must be objects. Weak references (keys can be garbage collected).
+
+JavaScriptconst weakMap = new WeakMap();
+let obj = { id: 1 };
+weakMap.set(obj, "private data");
+
+obj = null;        // obj can now be garbage collected → entry removed from WeakMap
+Use Case: Storing private data associated with objects without causing memory leaks.
+53. What are Iterators and Iterables in JavaScript?
+
+Iterable: An object that can be iterated over (has Symbol.iterator method).
+Iterator: An object with a next() method that returns { value, done }.
+
+JavaScriptconst arr = [1, 2, 3];
+const iterator = arr[Symbol.iterator]();
+
+console.log(iterator.next()); // { value: 1, done: false }
+console.log(iterator.next()); // { value: 2, done: false }
+console.log(iterator.next()); // { value: 3, done: false }
+console.log(iterator.next()); // { value: undefined, done: true }
+Arrays, Strings, Maps, Sets, and arguments are iterable by default.
+54. What is the for...of loop and how is it different from for...in?
+
+for...of → Iterates over values of an iterable object.
+for...in → Iterates over enumerable property keys of an object.
+
+JavaScriptconst arr = ['a', 'b', 'c'];
+
+for (let value of arr) {
+    console.log(value);        // 'a', 'b', 'c'
+}
+
+for (let key in arr) {
+    console.log(key);          // '0', '1', '2'
+}
+Rule: Use for...of for arrays and iterables. Use for...in only for plain objects.
+55. What is the Symbol.iterator and how do you make a custom object iterable?
+Symbol.iterator is a well-known symbol that defines the default iterator for an object.
+JavaScriptconst range = {
+    from: 1,
+    to: 5,
+    [Symbol.iterator]() {
+        let current = this.from;
+        return {
+            next: () => {
+                if (current <= this.to) {
+                    return { value: current++, done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+};
+
+for (let num of range) {
+    console.log(num);   // 1 2 3 4 5
+}
+56. What is the difference between Promise.then() and async/await?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeaturePromise.then()async/awaitReadabilityCan become nested ("callback hell")Looks synchronousError Handling.catch()try/catchDebuggingHarderEasier (stack traces)Return ValueReturns a new PromiseReturns a Promise automatically
+Modern Recommendation: Prefer async/await for most cases. Use .then() when you need fine-grained control over promise chaining.
+57. What is the fetch API? How does it compare to XMLHttpRequest?
+fetch is a modern, promise-based API for making HTTP requests.
+JavaScriptasync function getData() {
+    try {
+        const response = await fetch('/api/users', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!response.ok) throw new Error('Failed');
+        
+        const data = await response.json();
+        return data;
+    } catch (err) {
+        console.error(err);
+    }
+}
+Advantages over XMLHttpRequest:
+
+Cleaner promise-based syntax
+Better integration with async/await
+Built-in support for streaming
+
+58. What is CORS and how do you handle it?
+CORS (Cross-Origin Resource Sharing) is a security mechanism that restricts cross-origin HTTP requests.
+Common Solutions:
+
+Server-side: Add proper CORS headers (Access-Control-Allow-Origin, Access-Control-Allow-Methods, etc.)
+During development: Use proxy in Vite/Webpack or browser extensions.
+For credentials: Set Access-Control-Allow-Credentials: true and use withCredentials: true in fetch.
+
+59. What are Service Workers?
+Service Workers are scripts that run in the background, separate from the web page. They act as a proxy between the browser and the network.
+Main Uses:
+
+Offline support (Progressive Web Apps)
+Caching strategies
+Push notifications
+Background sync
+
+JavaScript// Register
+navigator.serviceWorker.register('/sw.js');
+Service Workers are a core part of Progressive Web Apps (PWAs).
+60. What is the difference between localStorage, sessionStorage, and IndexedDB?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeaturelocalStoragesessionStorageIndexedDBStorage TypeKey-Value (string only)Key-Value (string only)NoSQL database (structured data)Size Limit~5MB~5MBMuch larger (hundreds of MB)PersistenceUntil manually clearedUntil tab/session closedPersistentData TypeOnly stringsOnly stringsAny JavaScript type (objects, blobs)Use CaseUser preferencesTemporary form dataComplex offline apps, large datasets
+Rule: Use localStorage/sessionStorage for simple data. Use IndexedDB for complex or large offline data.
