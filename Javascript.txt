@@ -520,3 +520,167 @@ Use Cases: Image processing, complex calculations, data parsing — anything tha
 
 FeaturelocalStoragesessionStorageCookiesLifetimePersistent (until cleared)Until tab/session closedCan be persistent or sessionSize Limit~5MB~5MB~4KB per cookieSent to ServerNoNoYes (with every HTTP request)SecurityVulnerable to XSSVulnerable to XSSCan be HttpOnly / Secure
 Best Practice: Use localStorage for user preferences, sessionStorage for temporary form data, and cookies for authentication tokens (with HttpOnly flag).
+
+31. What is the difference between undefined and not defined?
+
+undefined → A variable has been declared but has not been assigned any value.
+not defined (ReferenceError) → Trying to access a variable that has never been declared.
+
+JavaScriptconsole.log(a);        // ReferenceError: a is not defined
+
+let b;
+console.log(b);        // undefined
+
+var c;
+console.log(c);        // undefined
+undefined is a value, while "not defined" is an error.
+32. What is the difference between == and ===? (Deep Dive)
+
+== (Loose Equality) → Performs type coercion before comparison.
+=== (Strict Equality) → Checks both value and type without coercion.
+
+JavaScriptconsole.log(0 == false);     // true  (false coerced to 0)
+console.log(0 === false);    // false (different types)
+
+console.log('' == 0);        // true
+console.log('' === 0);       // false
+
+console.log(null == undefined);   // true
+console.log(null === undefined);  // false
+Golden Rule: Always use === and !== unless you have a very specific reason for type coercion.
+33. What is NaN and how do you check for it?
+NaN stands for Not a Number. It is a special value of type number.
+JavaScriptconsole.log(typeof NaN);        // "number"
+
+console.log(NaN === NaN);       // false ← famous gotcha
+Correct way to check for NaN:
+JavaScriptisNaN(value);                   // Not perfect (coerces)
+Number.isNaN(value);            // Best (strict, ES6+)
+34. What are IIFEs (Immediately Invoked Function Expressions)?
+An IIFE is a function that is defined and executed immediately.
+JavaScript// Classic IIFE
+(function() {
+    console.log("This runs immediately");
+})();
+
+// With parameters
+((name) => {
+    console.log(`Hello ${name}`);
+})("Tarun");
+Use Cases:
+
+Creating private scope (before modules)
+Avoiding polluting global namespace
+One-time initialization
+
+35. What is the Module Pattern and how is it implemented?
+The Module Pattern uses closures to create private and public members.
+JavaScriptconst Calculator = (function() {
+    // Private members
+    let count = 0;
+
+    function privateLog(msg) {
+        console.log("LOG:", msg);
+    }
+
+    // Public API
+    return {
+        add: function(a, b) {
+            privateLog(`Adding ${a} + ${b}`);
+            return a + b;
+        },
+        getCount: function() {
+            return count;
+        }
+    };
+})();
+
+console.log(Calculator.add(5, 3));
+Modern replacement: ES6 Modules (import/export).
+36. What is the difference between Object.freeze() and Object.seal()?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MethodCan Add Properties?Can Delete Properties?Can Modify Existing?Object.freeze()NoNoNoObject.seal()NoNoYes
+JavaScriptconst obj = { name: "Tarun" };
+
+Object.freeze(obj);
+obj.age = 28;           // Fails silently in non-strict mode
+delete obj.name;        // Fails
+
+Object.seal(obj);
+obj.name = "New Name";  // Allowed
+obj.age = 28;           // Not allowed
+37. What are Generators in JavaScript?
+Generators are functions that can be paused and resumed using the yield keyword.
+JavaScriptfunction* numberGenerator() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+const gen = numberGenerator();
+console.log(gen.next().value); // 1
+console.log(gen.next().value); // 2
+console.log(gen.next().value); // 3
+Use Cases: Lazy evaluation, infinite sequences, async flow control (before async/await).
+38. What is the difference between for...of and for...in?
+
+for...in → Iterates over enumerable property keys (including inherited ones).
+for...of → Iterates over values of iterable objects (arrays, strings, maps, sets, etc.).
+
+JavaScriptconst arr = ['a', 'b', 'c'];
+
+for (let key in arr) {
+    console.log(key);        // 0, 1, 2 (indices)
+}
+
+for (let value of arr) {
+    console.log(value);      // 'a', 'b', 'c' (values)
+}
+Rule: Use for...of for arrays and iterables. Use for...in only for objects.
+39. What are Symbols in JavaScript?
+Symbol is a primitive data type that creates unique identifiers.
+JavaScriptconst sym1 = Symbol('description');
+const sym2 = Symbol('description');
+
+console.log(sym1 === sym2);        // false (always unique)
+
+const obj = {};
+obj[sym1] = "Hidden value";        // Symbol keys are not enumerable
+Use Cases:
+
+Creating unique object keys (to avoid collisions)
+Well-known symbols (Symbol.iterator, Symbol.toStringTag, etc.)
+
+40. What is Optional Chaining (?.) and Nullish Coalescing (??)?
+Optional Chaining (?.) – Safely access nested properties.
+JavaScriptconst user = { address: { city: "Ahmedabad" } };
+
+console.log(user?.address?.city);        // "Ahmedabad"
+console.log(user?.profile?.name);        // undefined (no error)
+Nullish Coalescing (??) – Returns right operand only if left is null or undefined.
+JavaScriptconst count = 0;
+console.log(count ?? 100);        // 0  (0 is valid)
+console.log(count || 100);        // 100 (wrong - 0 is falsy)
+These two operators (ES2020) greatly reduce null/undefined checks.
