@@ -1520,3 +1520,169 @@ console.log(formatter.format(1234567));   // ₹12,34,567.00
 const date = new Date();
 console.log(new Intl.DateTimeFormat('en-US').format(date));
 It provides much better localization support than manual string manipulation.
+
+91. What is the difference between == and ===? (Deep Dive + Common Gotchas)
+
+== (Loose Equality) performs type coercion before comparison.
+=== (Strict Equality) checks both value and type without any coercion.
+
+JavaScriptconsole.log(0 == false);        // true  (false → 0)
+console.log(0 === false);       // false
+
+console.log('' == 0);           // true
+console.log('' === 0);          // false
+
+console.log(null == undefined); // true
+console.log(null === undefined);// false
+
+console.log([] == ![]);         // true  ← tricky coercion
+Golden Rule: Always use === and !== in modern JavaScript unless you have a deliberate reason for type coercion.
+92. What is the difference between null and undefined?
+
+undefined → A variable has been declared but not assigned any value.
+null → Intentional absence of value (assigned by the developer).
+
+JavaScriptlet a;                    // undefined
+let b = null;             // null
+
+console.log(typeof undefined); // "undefined"
+console.log(typeof null);      // "object" ← historical bug in JavaScript
+Best Practice: Use null when you want to explicitly say "no value". Use undefined as the natural default for uninitialized variables.
+93. What is the difference between function declaration and function expression?
+JavaScript// Function Declaration (hoisted)
+function add(a, b) {
+    return a + b;
+}
+
+// Function Expression (not hoisted)
+const multiply = function(a, b) {
+    return a + b;
+};
+
+// Arrow Function (expression)
+const subtract = (a, b) => a - b;
+Key Difference: Function declarations are fully hoisted (can be called before declaration). Function expressions are only partially hoisted (like var).
+94. What is a Closure? Explain with a real-world example.
+A closure is a function that remembers the variables from its lexical scope even when the function is executed outside that scope.
+JavaScriptfunction createCounter() {
+    let count = 0;                    // Private variable
+
+    return function() {
+        return ++count;
+    };
+}
+
+const counter1 = createCounter();
+const counter2 = createCounter();
+
+console.log(counter1()); // 1
+console.log(counter1()); // 2
+console.log(counter2()); // 1
+Real-world Use Cases:
+
+Data privacy (module pattern)
+Maintaining state in event handlers
+Creating factory functions
+
+95. What is the Event Loop and how does it work?
+JavaScript is single-threaded, but it appears asynchronous thanks to the Event Loop.
+Components:
+
+Call Stack — Executes synchronous code
+Web APIs — Browser APIs (setTimeout, fetch, DOM events)
+Callback Queue (Macrotask Queue) — setTimeout, setInterval
+Microtask Queue — Promises, queueMicrotask, MutationObserver
+Event Loop — Continuously checks if the call stack is empty, then moves tasks from queues to the stack
+
+Execution Order: Microtasks → Macrotasks
+96. What are Promises? Explain the three states and chaining.
+A Promise represents the eventual completion or failure of an asynchronous operation.
+Three States:
+
+Pending — Initial state
+Fulfilled — Operation completed successfully (resolve)
+Rejected — Operation failed (reject)
+
+JavaScriptconst promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve("Success");
+    }, 1000);
+});
+
+promise
+    .then(result => console.log(result))
+    .catch(error => console.error(error))
+    .finally(() => console.log("Always runs"));
+97. What is async/await and how does it work under the hood?
+async/await is syntactic sugar over Promises that makes asynchronous code look synchronous.
+JavaScriptasync function fetchData() {
+    try {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+        return data;
+    } catch (err) {
+        console.error(err);
+    }
+}
+Under the hood, await pauses the function and resumes when the Promise settles. The async function always returns a Promise.
+98. What is the difference between localStorage, sessionStorage, and cookies?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeaturelocalStoragesessionStorageCookiesLifetimePersistentUntil tab closedCan be persistent or sessionSize Limit~5MB~5MB~4KB per cookieSent to ServerNoNoYes (with every request)SecurityVulnerable to XSSVulnerable to XSSCan be HttpOnly
+Best Practice: Use localStorage for user preferences, sessionStorage for temporary data, and cookies for authentication (with HttpOnly and Secure flags).
+99. What are Web Workers and Service Workers?
+
+Web Workers → Run JavaScript in background threads to prevent blocking the main UI thread.
+Service Workers → Special type of Web Worker that acts as a proxy between the browser and network. Used for offline support, caching, and PWAs.
+
+JavaScript// Web Worker
+const worker = new Worker('worker.js');
+worker.postMessage('Start calculation');
+Service Workers are essential for building Progressive Web Apps (PWAs).
+100. What are some important modern JavaScript features you should know?
+Key modern features (ES2020–ES2024):
+
+Optional Chaining (?.)
+Nullish Coalescing (??)
+Private Class Fields (#private)
+Top-level await
+Records & Tuples (Stage 2)
+Temporal API (new date/time library)
+Pattern Matching (proposal)
+
+Example:
+JavaScriptconst user = { profile: { name: "Tarun" } };
+console.log(user?.profile?.name ?? "Anonymous");
