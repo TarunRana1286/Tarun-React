@@ -684,3 +684,180 @@ JavaScriptconst count = 0;
 console.log(count ?? 100);        // 0  (0 is valid)
 console.log(count || 100);        // 100 (wrong - 0 is falsy)
 These two operators (ES2020) greatly reduce null/undefined checks.
+
+41. What is the difference between Object.assign() and the spread operator (...)?
+Both are used to copy or merge objects, but they have subtle differences:
+
+Object.assign(target, ...sources) → Mutates the target object. Copies enumerable own properties.
+Spread operator ({ ...obj }) → Creates a new object (shallow copy). Cleaner syntax.
+
+JavaScriptconst obj1 = { a: 1, b: 2 };
+const obj2 = { b: 3, c: 4 };
+
+// Object.assign (mutates target)
+const merged1 = Object.assign({}, obj1, obj2);   // New object
+
+// Spread (more modern and readable)
+const merged2 = { ...obj1, ...obj2 };            // New object
+
+console.log(merged2); // { a: 1, b: 3, c: 4 }
+Note: Both perform shallow copy only. Nested objects are referenced, not cloned.
+42. What is Shallow Copy vs Deep Copy?
+
+Shallow Copy → Copies only the top-level properties. Nested objects/arrays are still referenced.
+Deep Copy → Recursively copies all nested objects and arrays (true independent clone).
+
+JavaScriptconst original = { a: 1, b: { c: 2 } };
+
+// Shallow copy
+const shallow = { ...original };
+shallow.b.c = 99;                    // Affects original too!
+
+// Deep copy (simple way)
+const deep = JSON.parse(JSON.stringify(original));
+Better Deep Copy Methods: Use structuredClone() (modern) or libraries like Lodash cloneDeep().
+43. What is the Proxy object in JavaScript?
+Proxy allows you to create a proxy for another object and customize its fundamental operations (get, set, delete, etc.).
+JavaScriptconst user = { name: "Tarun", age: 28 };
+
+const proxiedUser = new Proxy(user, {
+    get(target, prop) {
+        if (prop === "age") return target[prop] + " years old";
+        return target[prop];
+    },
+    set(target, prop, value) {
+        if (prop === "age" && value < 0) throw new Error("Age cannot be negative");
+        target[prop] = value;
+        return true;
+    }
+});
+
+console.log(proxiedUser.age);   // "28 years old"
+proxiedUser.age = -5;           // Throws error
+Use Cases: Validation, logging, data binding, private properties, API mocking.
+44. What is the difference between forEach() and map()?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureforEach()map()PurposeExecute side effectsTransform and return new arrayReturn ValueundefinedNew array with transformed elementsChainingCannot chainCan be chained with other methods
+JavaScriptconst arr = [1, 2, 3];
+
+// forEach - side effects only
+arr.forEach(num => console.log(num * 2));
+
+// map - returns new array
+const doubled = arr.map(num => num * 2);   // [2, 4, 6]
+Rule: Use map() when you want to create a new array. Use forEach() only for side effects.
+45. What is the difference between splice() and slice()?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MethodMutates Original?PurposeReturnssplice()YesAdd/remove/replace elementsArray of removed elementsslice()NoExtract a portion of arrayNew array
+JavaScriptconst arr = [1, 2, 3, 4, 5];
+
+arr.splice(2, 2, "X", "Y");   // Removes 2 elements starting at index 2, inserts "X","Y"
+console.log(arr);             // [1, 2, "X", "Y", 5]
+
+const sliced = arr.slice(1, 4); // Extracts from index 1 to 3 (not including 4)
+console.log(sliced);          // ["X", "Y"]
+46. What is the reduce() method? Explain with real-world examples.
+reduce() executes a reducer function on each element, resulting in a single output value.
+JavaScript// Sum
+const sum = [1, 2, 3, 4].reduce((acc, curr) => acc + curr, 0);
+
+// Group by
+const grouped = items.reduce((acc, item) => {
+    (acc[item.category] = acc[item.category] || []).push(item);
+    return acc;
+}, {});
+
+// Flatten array
+const flat = nestedArray.reduce((acc, curr) => acc.concat(curr), []);
+reduce() is extremely powerful for data transformation and aggregation.
+47. What is the difference between async function and a normal function that returns a Promise?
+An async function always returns a Promise. Even if you return a primitive value, it gets wrapped in a resolved Promise.
+JavaScriptasync function getData() {
+    return "Hello";           // Actually returns Promise.resolve("Hello")
+}
+
+getData().then(data => console.log(data));
+Advantage of async: You can use await inside and handle errors with try/catch.
+48. What is Promise.all(), Promise.race(), Promise.allSettled(), and Promise.any()?
+
+Promise.all() → Waits for all promises to resolve. Rejects if any fails.
+Promise.race() → Resolves/rejects as soon as the first promise settles.
+Promise.allSettled() → Waits for all to settle (fulfilled or rejected). Returns status for each.
+Promise.any() → Resolves as soon as any promise fulfills. Rejects only if all fail.
+
+JavaScriptconst promises = [fetch1(), fetch2(), fetch3()];
+
+const results = await Promise.all(promises);           // All must succeed
+const first = await Promise.race(promises);            // First to finish
+const settled = await Promise.allSettled(promises);    // All complete with status
+49. What is the Reflect API?
+Reflect is a built-in object that provides methods for interceptable JavaScript operations (same operations that Proxy can intercept).
+JavaScriptconst obj = {};
+
+Reflect.set(obj, "name", "Tarun");     // Like obj.name = "Tarun"
+console.log(Reflect.get(obj, "name")); // "Tarun"
+
+Reflect.has(obj, "name");              // true
+Main Use: Used internally by Proxy and for more reliable meta-programming than direct operations.
+50. What are WeakMap and WeakSet? When should you use them?
+
+WeakMap → Keys must be objects. Keys are weakly referenced (can be garbage collected).
+WeakSet → Only objects. Also weakly referenced.
+
+JavaScriptconst weakMap = new WeakMap();
+
+let user = { id: 1 };
+weakMap.set(user, "Some private data");
+
+user = null;   // user object can now be garbage collected
+Use Cases:
+
+Storing private data associated with objects
+Memory-sensitive caching
+Avoiding memory leaks in long-running applications
