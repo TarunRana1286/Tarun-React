@@ -142,3 +142,191 @@ JavaScriptclass Person {
     constructor(name) { this.name = name; }
     greet() { console.log(`Hello, I'm ${this.name}`); }
 }
+
+11. What is Scope in JavaScript? Explain the different types of scope.
+Scope determines the accessibility of variables and functions in your code.
+Types of Scope:
+
+Global Scope: Variables declared outside any function/block are accessible everywhere.
+Function Scope (var): Variables declared with var inside a function are only accessible within that function.
+Block Scope (let, const): Variables declared with let or const inside {} (if, for, while, etc.) are only accessible within that block.
+Lexical Scope: Inner functions have access to variables from their outer (parent) function’s scope (this enables closures).
+
+JavaScriptlet globalVar = "I am global";
+
+function outer() {
+    let functionVar = "I am function scoped";
+    
+    if (true) {
+        let blockVar = "I am block scoped";   // only accessible inside this if block
+        console.log(blockVar);
+    }
+    
+    console.log(functionVar);
+}
+
+outer();
+Best Practice: Prefer let and const (block scope) over var.
+12. What is the difference between call(), apply(), and bind()?
+These methods are used to control the value of this inside a function.
+
+call(thisArg, arg1, arg2, ...) → Calls the function immediately, passing arguments individually.
+apply(thisArg, [argsArray]) → Calls the function immediately, passing arguments as an array.
+bind(thisArg, arg1, arg2, ...) → Returns a new function with this bound permanently (does not call immediately).
+
+JavaScriptconst person = { name: "Tarun" };
+
+function greet(greeting, punctuation) {
+    console.log(`${greeting}, ${this.name}${punctuation}`);
+}
+
+greet.call(person, "Hello", "!");        // Hello, Tarun!
+greet.apply(person, ["Hi", "!!"]);       // Hi, Tarun!!
+
+const boundGreet = greet.bind(person, "Hey");
+boundGreet("?");                         // Hey, Tarun?
+13. What are Higher-Order Functions in JavaScript?
+A Higher-Order Function is a function that does at least one of the following:
+
+Takes one or more functions as arguments, or
+Returns a function as its result.
+
+Examples: map(), filter(), reduce(), forEach(), and custom ones like:
+JavaScriptfunction multiplier(factor) {
+    return function(number) {
+        return number * factor;
+    };
+}
+
+const double = multiplier(2);
+console.log(double(5)); // 10
+Higher-order functions are the foundation of functional programming in JavaScript.
+14. Explain map(), filter(), and reduce() with examples.
+These are the most important array methods in modern JavaScript:
+JavaScriptconst numbers = [1, 2, 3, 4, 5];
+
+// map() - transforms each element
+const doubled = numbers.map(n => n * 2);                    // [2, 4, 6, 8, 10]
+
+// filter() - returns elements that pass the test
+const evens = numbers.filter(n => n % 2 === 0);             // [2, 4]
+
+// reduce() - reduces array to a single value
+const sum = numbers.reduce((acc, curr) => acc + curr, 0);   // 15
+Rule of Thumb:
+
+Use map() when you want to transform data.
+Use filter() when you want to select a subset.
+Use reduce() when you want to aggregate/combine into one value.
+
+15. What is the Temporal Dead Zone (TDZ) in JavaScript?
+The Temporal Dead Zone is the time between entering a block scope and the actual declaration of a let or const variable. During this period, accessing the variable throws a ReferenceError.
+JavaScriptconsole.log(x);     // ReferenceError (TDZ)
+
+let x = 10;
+
+console.log(y);     // undefined (var is hoisted with undefined)
+var y = 20;
+var does not have TDZ, while let and const do.
+16. What are Promises in JavaScript? Explain the three states.
+A Promise is an object representing the eventual completion (or failure) of an asynchronous operation.
+Three States:
+
+Pending → Initial state (neither fulfilled nor rejected)
+Fulfilled → Operation completed successfully (resolve())
+Rejected → Operation failed (reject())
+
+JavaScriptconst fetchData = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (Math.random() > 0.5) resolve("Data loaded");
+        else reject("Failed to load data");
+    }, 1000);
+});
+
+fetchData
+    .then(data => console.log(data))
+    .catch(err => console.error(err));
+17. What is the difference between async/await and Promises?
+async/await is syntactic sugar on top of Promises that makes asynchronous code look and behave more like synchronous code.
+JavaScript// Using Promises
+fetchData()
+    .then(data => process(data))
+    .catch(err => handleError(err));
+
+// Using async/await (much cleaner)
+async function loadData() {
+    try {
+        const data = await fetchData();
+        const result = await process(data);
+        return result;
+    } catch (err) {
+        handleError(err);
+    }
+}
+Advantages of async/await:
+
+Cleaner, more readable code
+Easier error handling with try/catch
+Better debugging experience
+
+18. What is the Event Bubbling and Event Capturing (Event Propagation)?
+JavaScript events propagate in two phases:
+
+Event Capturing (Trickling) → Event travels from root (window) down to the target element.
+Event Bubbling → Event travels from the target element up to the root.
+
+By default, event listeners use bubbling phase.
+JavaScriptelement.addEventListener('click', handler, { capture: true }); // Capturing phase
+element.addEventListener('click', handler);                    // Bubbling phase (default)
+You can stop propagation using event.stopPropagation().
+19. What is the difference between localStorage, sessionStorage, and cookies?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeaturelocalStoragesessionStorageCookiesLifetimeUntil manually clearedUntil tab/session is closedCan be persistent or sessionSize Limit~5MB~5MB~4KB per cookieSent to ServerNoNoYes (with every HTTP request)AccessibilitySame originSame originCan be restricted with HttpOnly
+Best Practice: Use localStorage for long-term data, sessionStorage for temporary data during a session.
+20. What are Modules in JavaScript? Explain ES6 Modules.
+Modules allow you to split code into separate files and import/export functionality.
+ES6 Module Syntax:
+JavaScript// math.js (Export)
+export const add = (a, b) => a + b;
+export default function multiply(a, b) { return a * b; }
+
+// main.js (Import)
+import multiply, { add } from './math.js';
+
+console.log(add(2, 3));        // 5
+console.log(multiply(2, 3));   // 6
+Benefits: Better organization, encapsulation, tree-shaking support, and reusability.
