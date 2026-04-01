@@ -1228,3 +1228,137 @@ JavaScriptconst observer = new IntersectionObserver((entries) => {
 
 observer.observe(document.getElementById('lazy-image'));
 Common Use Cases: Lazy loading, infinite scrolling, animations on scroll, ad impression tracking.
+
+71. What is the Performance API and how is it used?
+The Performance API provides high-resolution timing and performance metrics.
+JavaScript// Basic timing
+const start = performance.now();
+// ... some code
+const end = performance.now();
+console.log(`Time taken: ${end - start}ms`);
+
+// Mark and Measure
+performance.mark('start-operation');
+heavyFunction();
+performance.mark('end-operation');
+
+performance.measure('operation-time', 'start-operation', 'end-operation');
+
+const entries = performance.getEntriesByType('measure');
+console.log(entries[0].duration);
+Common Use Cases: Performance monitoring, benchmarking, and debugging slow code.
+72. What is the difference between requestAnimationFrame and setTimeout/setInterval?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeaturerequestAnimationFramesetTimeout / setIntervalPurposeSmooth animationsGeneral delayed or repeated executionTimingSynchronized with screen refresh (~60fps)Fixed delay (not synced with display)Battery/PerformanceMore efficientCan cause jank if overusedPaused when tab inactiveYes (automatically)Continues running
+Best Practice: Always use requestAnimationFrame for animations and smooth UI updates.
+73. What is the ResizeObserver API?
+ResizeObserver allows you to observe changes to the size of an element.
+JavaScriptconst observer = new ResizeObserver(entries => {
+    for (let entry of entries) {
+        console.log(`Element resized to: ${entry.contentRect.width}x${entry.contentRect.height}`);
+    }
+});
+
+observer.observe(document.getElementById('myElement'));
+Use Cases: Responsive design adjustments, auto-sizing components, canvas resizing.
+74. What is the difference between MutationObserver and ResizeObserver?
+
+MutationObserver → Observes changes to the DOM tree (add/remove nodes, attribute changes, text changes).
+ResizeObserver → Observes only size changes of elements.
+
+JavaScript// MutationObserver example
+const mo = new MutationObserver(mutations => {
+    console.log('DOM changed!', mutations);
+});
+mo.observe(document.body, { childList: true, subtree: true });
+75. What is the BroadcastChannel API?
+BroadcastChannel allows communication between different tabs/windows of the same origin.
+JavaScriptconst channel = new BroadcastChannel('app_channel');
+
+channel.postMessage({ type: 'user-logged-in', userId: 123 });
+
+// In another tab
+channel.onmessage = (event) => {
+    console.log('Received from another tab:', event.data);
+};
+Useful for syncing state across tabs (e.g., logout from all tabs).
+76. What is the Page Visibility API?
+It lets you know when a page becomes hidden or visible (e.g., user switches tabs).
+JavaScriptdocument.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        console.log('Tab is hidden - pause video/music');
+    } else {
+        console.log('Tab is visible - resume playback');
+    }
+});
+Very useful for saving resources and improving user experience.
+77. What is the Beacon API?
+The Beacon API allows you to send data to the server asynchronously even after the page is unloaded (e.g., analytics data on page exit).
+JavaScriptnavigator.sendBeacon('/analytics', JSON.stringify({
+    event: 'page-unload',
+    userId: 123,
+    timeSpent: 245
+}));
+It is more reliable than fetch or XMLHttpRequest for send-on-unload scenarios.
+78. What is the difference between window.onload and document.DOMContentLoaded?
+
+DOMContentLoaded → Fires when the HTML is fully parsed (DOM is ready), but external resources (images, CSS, scripts) may still be loading.
+window.onload → Fires when the entire page (including all resources) is fully loaded.
+
+JavaScriptdocument.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM is ready - safe to manipulate elements');
+});
+
+window.addEventListener('load', () => {
+    console.log('All resources loaded - images, CSS, etc.');
+});
+Best Practice: Use DOMContentLoaded for most initialization tasks.
+79. What is the navigator.clipboard API?
+Modern way to read from and write to the system clipboard.
+JavaScript// Write to clipboard
+await navigator.clipboard.writeText("Copied text");
+
+// Read from clipboard
+const text = await navigator.clipboard.readText();
+console.log(text);
+Requires user permission (secure context + user gesture).
+80. What are some important security best practices in JavaScript?
+Key security practices:
+
+Never trust user input — always sanitize (use DOMPurify for HTML).
+Use HTTPS everywhere.
+Set proper HTTP security headers (CSP, X-Frame-Options, etc.).
+Avoid eval(), innerHTML with user data, and new Function().
+Use HttpOnly and Secure flags for authentication cookies.
+Implement Content Security Policy (CSP) to prevent XSS.
+Validate and sanitize all data on both client and server.
+Use Subresource Integrity (SRI) for third-party scripts.
