@@ -1,0 +1,144 @@
+1. What is JavaScript and what are its key features?
+JavaScript is a high-level, single-threaded, dynamic, interpreted (just-in-time compiled) programming language primarily used for making web pages interactive.
+Key Features:
+
+Prototype-based OOP (not class-based like C#)
+First-class functions (functions are objects)
+Event-driven and asynchronous programming
+Dynamic typing (no need to declare types)
+Single-threaded with event loop for concurrency
+Runs on both client-side (browser) and server-side (Node.js)
+
+2. What is the difference between var, let, and const?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeaturevarletconstScopeFunction-scopedBlock-scopedBlock-scopedHoistingHoisted (initialized as undefined)Hoisted (Temporal Dead Zone)Hoisted (Temporal Dead Zone)Re-declarationAllowedNot allowedNot allowedRe-assignmentAllowedAllowedNot allowed (but object mutation is ok)
+Best Practice: Use const by default. Use let only when you need to re-assign. Never use var.
+3. Explain Hoisting in JavaScript.
+Hoisting is JavaScript's default behavior of moving declarations (not initializations) to the top of their scope before code execution.
+JavaScriptconsole.log(x); // undefined (not error)
+var x = 10;
+
+console.log(y); // ReferenceError: Cannot access 'y' before initialization
+let y = 20;
+Functions are fully hoisted, var is partially hoisted, let/const are hoisted but stay in Temporal Dead Zone (TDZ).
+4. What is the difference between == and ===?
+
+== → Loose equality (performs type coercion)
+=== → Strict equality (no type coercion)
+
+JavaScriptconsole.log(0 == false);     // true  (coerces to same value)
+console.log(0 === false);    // false (different types)
+console.log('5' == 5);       // true
+console.log('5' === 5);      // false
+Rule: Always use === and !== unless you have a very specific reason.
+5. What is the Event Loop in JavaScript?
+JavaScript is single-threaded but appears asynchronous thanks to the Event Loop.
+Components:
+
+Call Stack (executes synchronous code)
+Web APIs (setTimeout, DOM events, fetch, etc.)
+Callback Queue / Microtask Queue
+Event Loop (moves callbacks from queue to call stack when stack is empty)
+
+Order: Microtasks (Promises, queueMicrotask) → Macrotasks (setTimeout, setInterval).
+6. Explain the difference between null and undefined.
+
+undefined → Variable declared but not assigned any value.
+null → Intentional absence of value (assigned by developer).
+
+JavaScriptlet a;           // undefined
+let b = null;    // null (explicitly set)
+
+console.log(typeof undefined); // "undefined"
+console.log(typeof null);      // "object" ← famous bug in JS
+7. What are Closures in JavaScript? Explain with example.
+A closure is a function that remembers the variables from its lexical scope even when the function is executed outside that scope.
+JavaScriptfunction createCounter() {
+    let count = 0;
+    return function() {
+        return ++count;
+    };
+}
+
+const counter = createCounter();
+console.log(counter()); // 1
+console.log(counter()); // 2
+Use Cases: Data privacy, module pattern, maintaining state in async callbacks.
+8. What is the this keyword in JavaScript?
+this refers to the object that is executing the current function.
+Rules for this:
+
+In global scope → window (browser) / global (Node.js)
+Inside object method → the object itself
+Inside constructor (new) → the new instance
+Inside arrow function → lexical this (inherits from surrounding scope)
+With .call(), .apply(), .bind() → explicitly set
+
+9. What are Arrow Functions and how do they differ from regular functions?
+Arrow functions (=>) have shorter syntax and lexical this.
+JavaScriptconst obj = {
+    name: "Tarun",
+    regular: function() {
+        console.log(this.name);        // "Tarun"
+    },
+    arrow: () => {
+        console.log(this.name);        // undefined or window (lexical this)
+    }
+};
+Key Differences:
+
+No own this, arguments, or super
+Cannot be used as constructors
+No prototype property
+
+10. What is Prototypal Inheritance in JavaScript?
+JavaScript uses prototypal inheritance — objects inherit properties and methods from other objects via the prototype chain.
+JavaScriptfunction Person(name) {
+    this.name = name;
+}
+
+Person.prototype.greet = function() {
+    console.log(`Hello, I'm ${this.name}`);
+};
+
+const tarun = new Person("Tarun");
+tarun.greet();
+Modern way (ES6+):
+JavaScriptclass Person {
+    constructor(name) { this.name = name; }
+    greet() { console.log(`Hello, I'm ${this.name}`); }
+}
