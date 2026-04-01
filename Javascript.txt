@@ -330,3 +330,193 @@ import multiply, { add } from './math.js';
 console.log(add(2, 3));        // 5
 console.log(multiply(2, 3));   // 6
 Benefits: Better organization, encapsulation, tree-shaking support, and reusability.
+
+21. What is the this keyword and how does it behave in different contexts?
+this refers to the object that is currently executing the code. Its value is determined by how the function is called (not where it is defined).
+Rules for this:
+
+Global Context → window (browser) or global (Node.js)
+Object Method → the object itself
+Constructor (new) → the newly created instance
+Regular Function → window / undefined (in strict mode)
+Arrow Function → Lexical this (inherits from surrounding scope)
+Event Handler → the DOM element that triggered the event
+
+JavaScriptconst obj = {
+    name: "Tarun",
+    regularFunc: function() {
+        console.log(this.name);        // "Tarun"
+    },
+    arrowFunc: () => {
+        console.log(this.name);        // undefined (lexical this)
+    }
+};
+
+obj.regularFunc();
+obj.arrowFunc();
+22. What is Prototypal Inheritance?
+JavaScript uses prototypal inheritance — objects inherit properties and methods from other objects via the prototype chain.
+JavaScriptfunction Person(name) {
+    this.name = name;
+}
+
+Person.prototype.greet = function() {
+    console.log(`Hello, I'm ${this.name}`);
+};
+
+const tarun = new Person("Tarun");
+tarun.greet();                    // Works via prototype chain
+Modern Way (ES6):
+JavaScriptclass Person {
+    constructor(name) { this.name = name; }
+    greet() { console.log(`Hello, I'm ${this.name}`); }
+}
+Every object has a __proto__ link that points to its prototype.
+23. What are Classes in JavaScript? Are they real classes?
+class is syntactic sugar over JavaScript’s existing prototype-based inheritance. Under the hood, it still uses prototypes.
+JavaScriptclass User {
+    constructor(name, email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    login() {
+        console.log(`${this.name} logged in`);
+    }
+
+    static createAdmin() {          // Static method
+        return new User("Admin", "admin@example.com");
+    }
+}
+
+const user = new User("Tarun", "tarun@example.com");
+user.login();
+Key Points:
+
+Classes are not hoisted like functions
+Methods are added to the prototype
+Supports extends for inheritance
+
+24. What is the difference between function declaration and function expression?
+JavaScript// Function Declaration (hoisted)
+function add(a, b) { return a + b; }
+
+// Function Expression (not hoisted)
+const multiply = function(a, b) { return a * b; };
+
+// Arrow Function (expression)
+const subtract = (a, b) => a - b;
+Function declarations are fully hoisted, while expressions are only partially hoisted (like var).
+25. What is a Pure Function?
+A pure function is a function that:
+
+Always returns the same output for the same input
+Has no side effects (does not modify external state)
+
+JavaScript// Pure
+const add = (a, b) => a + b;
+
+// Impure
+let total = 0;
+const addToTotal = (x) => {
+    total += x;           // Side effect
+    return total;
+};
+Pure functions are easier to test, debug, and are fundamental to functional programming.
+26. What is Currying in JavaScript?
+Currying is the technique of transforming a function that takes multiple arguments into a sequence of functions that each take a single argument.
+JavaScript// Normal function
+const add = (a, b, c) => a + b + c;
+
+// Curried version
+const curriedAdd = a => b => c => a + b + c;
+
+console.log(curriedAdd(1)(2)(3)); // 6
+Use Cases: Reusability, functional composition, partial application.
+27. What is Memoization?
+Memoization is an optimization technique that caches the results of expensive function calls and returns the cached result when the same inputs occur again.
+JavaScriptconst memoize = (fn) => {
+    const cache = {};
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (cache[key]) return cache[key];
+        const result = fn(...args);
+        cache[key] = result;
+        return result;
+    };
+};
+
+const expensiveCalc = memoize((n) => {
+    console.log("Calculating...");
+    return n * n * n;
+});
+Commonly used for recursive functions (Fibonacci) and API calls.
+28. What is the difference between debounce and throttle?
+Both are techniques to control how often a function is executed.
+
+debounce → Waits for a pause in events before executing (e.g., search input).
+throttle → Executes at most once every N milliseconds (e.g., scroll events, resize).
+
+JavaScript// Simple debounce
+function debounce(fn, delay) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+    };
+}
+29. What are Web Workers and when should you use them?
+Web Workers allow you to run JavaScript in background threads, preventing the main thread from being blocked.
+JavaScript// main.js
+const worker = new Worker('worker.js');
+
+worker.postMessage("Start heavy calculation");
+
+worker.onmessage = (e) => {
+    console.log("Result:", e.data);
+};
+
+// worker.js
+self.onmessage = (e) => {
+    // Heavy computation here
+    self.postMessage(result);
+};
+Use Cases: Image processing, complex calculations, data parsing — anything that would freeze the UI.
+30. What is the difference between localStorage, sessionStorage, and cookies?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeaturelocalStoragesessionStorageCookiesLifetimePersistent (until cleared)Until tab/session closedCan be persistent or sessionSize Limit~5MB~5MB~4KB per cookieSent to ServerNoNoYes (with every HTTP request)SecurityVulnerable to XSSVulnerable to XSSCan be HttpOnly / Secure
+Best Practice: Use localStorage for user preferences, sessionStorage for temporary form data, and cookies for authentication tokens (with HttpOnly flag).
