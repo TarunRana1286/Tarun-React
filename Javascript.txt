@@ -1362,3 +1362,161 @@ Use HttpOnly and Secure flags for authentication cookies.
 Implement Content Security Policy (CSP) to prevent XSS.
 Validate and sanitize all data on both client and server.
 Use Subresource Integrity (SRI) for third-party scripts.
+
+81. What is Strict Mode in JavaScript and why should you use it?
+Strict Mode is a way to opt into a stricter variant of JavaScript that catches common mistakes and "unsafe" actions.
+Enable it by adding "use strict"; at the top of a file or function.
+Key Changes in Strict Mode:
+
+Throws error on assigning to undeclared variables
+this is undefined in non-method functions (instead of window)
+Prevents duplicate parameter names
+Makes delete on variables throw error
+Disallows octal literals
+Makes eval safer
+
+JavaScript"use strict";
+
+x = 10;        // ReferenceError: x is not defined
+
+function test(a, a) { }   // SyntaxError: duplicate parameter
+Recommendation: Always use "use strict"; in new code and modules (ES6 modules are strict by default).
+82. What is the difference between Function.prototype.call() and Function.prototype.apply()?
+Both invoke a function with a specific this value, but differ in how arguments are passed:
+
+call(thisArg, arg1, arg2, ...) → Arguments passed individually.
+apply(thisArg, [argsArray]) → Arguments passed as an array.
+
+JavaScriptfunction greet(greeting, punctuation) {
+    console.log(`${greeting}, ${this.name}${punctuation}`);
+}
+
+const person = { name: "Tarun" };
+
+greet.call(person, "Hello", "!");           // Hello, Tarun!
+greet.apply(person, ["Hi", "!!!"]);         // Hi, Tarun!!!
+Modern Tip: Use call() for known arguments; use apply() or spread syntax when you have an array.
+83. What is the Function.prototype.bind() method?
+bind() creates a new function with a fixed this value and optionally pre-filled arguments.
+JavaScriptconst person = { name: "Tarun" };
+
+function greet(greeting) {
+    console.log(`${greeting}, ${this.name}`);
+}
+
+const boundGreet = greet.bind(person, "Hello");
+boundGreet();                    // "Hello, Tarun"
+
+const boundGreet2 = greet.bind(person);
+boundGreet2("Hi");               // "Hi, Tarun"
+Common Use: Fixing this in callbacks, event handlers, and React class components.
+84. What are Template Literals (Template Strings)?
+Template literals (introduced in ES6) allow embedded expressions and multi-line strings using backticks.
+JavaScriptconst name = "Tarun";
+const age = 28;
+
+const message = `Hello, my name is ${name} and I am ${age} years old.
+
+This is a multi-line string!`;
+
+console.log(message);
+Advantages:
+
+Easy string interpolation with ${}
+Multi-line strings without \n
+Can be tagged (Tagged Template Literals)
+
+85. What are Tagged Template Literals?
+Tagged templates allow you to parse template literals with a custom function.
+JavaScriptfunction highlight(strings, ...values) {
+    return strings.reduce((acc, str, i) => {
+        return acc + `<mark>${values[i] || ''}</mark>` + str;
+    }, '');
+}
+
+const name = "Tarun";
+const result = highlight`Hello ${name}!`;   // "Hello <mark>Tarun</mark>!"
+Useful for syntax highlighting, escaping, internationalization, etc.
+86. What is Destructuring in JavaScript?
+Destructuring allows you to unpack values from arrays or properties from objects into distinct variables.
+JavaScript// Array Destructuring
+const [first, second, ...rest] = [10, 20, 30, 40, 50];
+
+// Object Destructuring
+const user = { name: "Tarun", age: 28, city: "Ahmedabad" };
+const { name, age, city: location } = user;
+
+console.log(name, age, location);   // Tarun 28 Ahmedabad
+Default values and nested destructuring are also supported.
+87. What are Default Parameters in JavaScript?
+Default parameters allow you to set default values for function parameters.
+JavaScriptfunction greet(name = "Guest", greeting = "Hello") {
+    console.log(`${greeting}, ${name}!`);
+}
+
+greet();                    // Hello, Guest!
+greet("Tarun", "Hi");       // Hi, Tarun!
+They are evaluated at call time and can use previous parameters.
+88. What is the Rest Parameter (...) and Spread Operator?
+Both use the same syntax (...) but serve opposite purposes.
+
+Rest Parameter → Collects remaining arguments into an array (function parameters).
+Spread Operator → Expands an iterable into individual elements.
+
+JavaScript// Rest
+function sum(...numbers) {
+    return numbers.reduce((a, b) => a + b, 0);
+}
+
+// Spread
+const arr1 = [1, 2, 3];
+const arr2 = [...arr1, 4, 5];        // [1, 2, 3, 4, 5]
+
+const obj1 = { a: 1 };
+const obj2 = { ...obj1, b: 2 };      // { a: 1, b: 2 }
+89. What is the difference between Object.freeze() and Object.seal()?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MethodCan Add New Properties?Can Delete Properties?Can Modify Existing Values?Object.freeze()NoNoNoObject.seal()NoNoYes
+JavaScriptconst obj = { name: "Tarun" };
+
+Object.freeze(obj);
+obj.age = 28;           // Silently fails in non-strict mode
+
+Object.seal(obj);
+obj.name = "New Name";  // Allowed
+obj.age = 28;           // Not allowed
+90. What is the Intl object and how is it used?
+The Intl object is the ECMAScript Internationalization API for language-sensitive string comparison, number formatting, date/time formatting, etc.
+JavaScript// Number formatting
+const formatter = new Intl.NumberFormat('en-IN', { 
+    style: 'currency', 
+    currency: 'INR' 
+});
+console.log(formatter.format(1234567));   // ₹12,34,567.00
+
+// Date formatting
+const date = new Date();
+console.log(new Intl.DateTimeFormat('en-US').format(date));
+It provides much better localization support than manual string manipulation.
